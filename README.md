@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Catatan Foto</title>
+<title>LEMBURAN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
 <meta name="theme-color" content="#eaf1f5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b161c" media="(prefers-color-scheme: dark)">
