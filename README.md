@@ -672,6 +672,9 @@
     border: 1px solid var(--line);
     border-radius: 16px;
     box-shadow: var(--shadow);
+    position: sticky;
+    top: 8px;
+    z-index: 40;
   }
   .alat-cepat button {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -680,13 +683,75 @@
     font: inherit; font-size: 0.75rem; font-weight: 700;
     letter-spacing: 0.01em;
     cursor: pointer;
-    transition: transform 0.15s var(--ease), background 0.2s, color 0.2s;
+    transition: transform 0.15s var(--ease), background 0.2s, color 0.2s, box-shadow 0.2s;
   }
+  .alat-cepat button.aktif {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(14, 116, 144, 0.28);
+  }
+  .alat-cepat button.aktif .ikon-alat { filter: none; }
   .ikon-alat { font-size: 1.35rem; line-height: 1; }
   @media (hover: hover) {
-    .alat-cepat button:hover { background: var(--accent-soft); color: var(--accent-deep); }
+    .alat-cepat button:hover:not(.aktif) { background: var(--accent-soft); color: var(--accent-deep); }
   }
-  .alat-cepat button:active { transform: scale(0.96); background: var(--accent-soft); }
+  .alat-cepat button:active { transform: scale(0.96); }
+  /* Panel tools: hanya satu grup tampil */
+  .panel-alat[hidden] { display: none !important; }
+  .panel-alat { animation: geser 0.28s var(--ease); }
+
+  /* Tutorial balon perangkat baru */
+  .tour-latar {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(15, 37, 48, 0.55);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .tour-kartu {
+    width: min(100%, 400px);
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.28);
+    overflow: hidden;
+    animation: geser 0.35s var(--ease);
+  }
+  .tour-gambar {
+    height: 160px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #e0f2fe, #f0fdfa);
+    font-size: 4rem;
+    position: relative;
+  }
+  .tut-gambar .tut-ilustrasi {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 0.85rem; font-weight: 700; color: var(--accent-deep);
+  }
+  .tut-gambar .tut-ilustrasi span.besar { font-size: 3.2rem; line-height: 1; }
+  .tut-badan { padding: 16px 18px 8px; }
+  .tut-badan h3 { margin: 0 0 6px; font-size: 1.15rem; color: var(--ink); }
+  .tut-badan p { margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.45; }
+  .tut-langkah {
+    display: flex; gap: 6px; justify-content: center;
+    padding: 8px 0 4px;
+  }
+  .tut-langkah i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--line); display: block;
+  }
+  .tut-langkah i.aktif { background: var(--accent); transform: scale(1.25); }
+  .tut-aksi {
+    display: flex; gap: 8px; padding: 12px 16px 16px;
+  }
+  .tut-aksi button { flex: 1; }
+  .tut-sorot {
+    position: fixed; z-index: 10001;
+    border: 3px solid var(--accent);
+    border-radius: 16px;
+    box-shadow: 0 0 0 9999px rgba(15,37,48,.45), 0 0 0 4px rgba(14,116,144,.35);
+    pointer-events: none;
+    transition: all 0.35s var(--ease);
+  }
+
 
   .kartu-profil {
     display: grid; gap: 6px;
@@ -1015,10 +1080,10 @@
     <p class="sekarang" id="sekarang" aria-live="off"></p>
   </header>
 
-  <nav class="alat-cepat" aria-label="Pintasan">
-    <button type="button" data-tuju="#areaFoto"><span class="ikon-alat">📷</span>Foto</button>
-    <button type="button" data-tuju="#bagianScan"><span class="ikon-alat">📄</span>Scan</button>
-    <button type="button" data-tuju="#bagianData"><span class="ikon-alat">🧾</span>Data &amp; Form</button>
+  <nav class="alat-cepat" id="navAlat" aria-label="Pintasan tools">
+    <button type="button" data-panel="foto" class="aktif" aria-current="page"><span class="ikon-alat">📷</span>Foto</button>
+    <button type="button" data-panel="scan"><span class="ikon-alat">📄</span>Scan</button>
+    <button type="button" data-panel="data"><span class="ikon-alat">🧾</span>Data &amp; Form</button>
   </nav>
 
   <div class="kartu-profil">
@@ -1225,6 +1290,17 @@
         <button type="button" class="tombol" id="muatAdminRingkas">Muat ringkasan</button>
       </div>
       <div id="isiAdminRingkas" class="petunjuk" style="margin-top:10px"></div>
+    </div>
+    
+    <div style="margin:16px 0 8px;padding-top:12px;border-top:1px solid #dbe4ea">
+      <h3 style="margin:0 0 8px;font-size:1rem">Data foto &amp; folder semua user</h3>
+      <p class="petunjuk" style="margin:0 0 8px">Lihat semua data lembur, ukuran folder, buka Drive, atau hapus satu data.</p>
+      <div class="baris" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <input type="text" id="filterAdminData" placeholder="Filter username (opsional)" style="flex:1;min-width:140px">
+        <button type="button" class="tombol" id="muatAdminData">Muat semua data</button>
+      </div>
+      <div id="isiAdminData" class="petunjuk">Belum dimuat.</div>
+      <div id="statusAdminData" class="status" hidden></div>
     </div>
     <button type="button" class="mini" id="muatAkun" style="margin-top:10px">Muat ulang daftar akun</button>
   </section>
@@ -1440,7 +1516,7 @@
   let urlPratinjau = null;
   let sedangKirim = false;
 
-  const VERSI_SERVER = "2026.09.26.6";   // harus sama dengan VERSI_ di Code.gs
+  const VERSI_SERVER = "2026.09.26.11";   // harus sama dengan VERSI_ di Code.gs
   const PESAN_KONEKSI = "Tidak bisa terhubung ke Apps Script. Pastikan deployment diatur Who has access: Anyone dan alamatnya berakhiran /exec.";
 
   const kamera = { stream: null, pos: null, gpsError: null, watchId: null, alamat: [], alamatPos: null, alamatWaktu: 0, timer: null, heading: null, jejak: [], onOri: null };
@@ -1459,6 +1535,30 @@
   function ambilProfilCache() { try { return JSON.parse(ambil("profil") || "null"); } catch (e) { return null; } }
   function simpanProfilCache(p) { simpan("profil", JSON.stringify(p)); }
 
+  function labelOc(oc) {
+    const o = String(oc || "S3").toUpperCase();
+    if (o === "DGM") return "Biznet DGM";
+    if (o === "MK") return "Mitra Kerja (MK)";
+    return "Biznet S3";
+  }
+
+  function perbaruiLogoOcHeader(oc) {
+    const wrap = $("logoOcHeader");
+    const img = $("imgLogoOc");
+    if (!wrap || !img) return;
+    const o = String(oc || "S3").toUpperCase();
+    let b64 = null;
+    try {
+      if (o === "DGM" && ASET_LOGO.dgmLeft) b64 = ASET_LOGO.dgmLeft;
+      else if (o === "MK" && ASET_LOGO.mkLeft) b64 = ASET_LOGO.mkLeft;
+      else if (ASET_LOGO.s3) b64 = ASET_LOGO.s3;
+    } catch (e) { b64 = null; }
+    if (!b64) { wrap.hidden = true; return; }
+    img.src = "data:image/jpeg;base64," + b64;
+    img.alt = labelOc(o);
+    wrap.hidden = false;
+  }
+
   function terapkanProfil(p) {
     profilAktif = p;
     simpanProfilCache(p);
@@ -1466,7 +1566,8 @@
     $("pJabatan").textContent = p.jabatan || "-";
     $("pKantor").textContent = p.kantor || "-";
     $("pNik").textContent = p.nik || "-";
-    $("pOc").textContent = p.oc === "DGM" ? "Biznet DGM" : "Biznet S3";
+    $("pOc").textContent = labelOc(p.oc);
+    perbaruiLogoOcHeader(p.oc);
     const admin = !!(p && p.admin);
     $("bagianAdmin").hidden = !admin;
     if (admin) muatDaftarAkun();
@@ -1475,6 +1576,8 @@
   function tampilkanApp() {
     $("gerbang").hidden = true;
     $("app").hidden = false;
+    try { setTimeout(siapkanPanelAlat, 50); } catch (e) {}
+    try { setTimeout(mulaiTutorialJikaPerangkatBaru, 700); } catch (e) {}
     pasangRevealObserver();
     mulaiApp();
   }
@@ -1750,7 +1853,13 @@
     }
   }
 
-  function keluarAkun() {
+  async function keluarAkun() {
+    // Hapus token di server agar perangkat lain tidak ikut "nempel"; tanpa ini sesi tidak pernah kadaluarsa sendiri
+    try {
+      if (pengguna() && tokenAktif()) {
+        await panggil({ aksi: "keluar" });
+      }
+    } catch (e) { /* tetap keluar lokal */ }
     hapusSesi();
     try { localStorage.removeItem("profil"); } catch (e) { /* abaikan */ }
     location.reload();
@@ -4970,9 +5079,11 @@ async function buatPdfLembur(PDFLib, d, aset) {
     if (el("unduhRekapCsv")) el("unduhRekapCsv").addEventListener("click", unduhRekapCsv);
     if (el("unduhCadangan")) el("unduhCadangan").addEventListener("click", unduhCadangan);
     if (el("muatAdminRingkas")) el("muatAdminRingkas").addEventListener("click", muatAdminRingkas);
+    if (el("muatAdminData")) el("muatAdminData").addEventListener("click", muatAdminDataSemua);
+    try { siapkanPanelAlat(); } catch (e) { console.warn(e); }
     if (el("tautanLupaSandi")) el("tautanLupaSandi").addEventListener("click", mintaLupaSandi);
     // onboarding setelah app tampil
-    setTimeout(function(){ try { if (!$("app").hidden) tampilkanOnboarding(); } catch(e){} }, 1200);
+    setTimeout(function(){ try { if (!$("app").hidden) mulaiTutorialJikaPerangkatBaru(); } catch(e){} }, 800);
     // Lazy OCR saat buka scan
     ["tombolOcrScan", "tombolQrScan", "mulaiScan"].forEach(function (id) {
       const n = el(id);
@@ -4981,22 +5092,147 @@ async function buatPdfLembur(PDFLib, d, aset) {
   });
 
 
-  function tampilkanOnboarding() {
-    if (ambil("onboardingLembur")) return;
-    const d = document.createElement("div");
-    d.style.cssText = "position:fixed;inset:0;background:rgba(15,37,48,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px";
-    d.innerHTML = '<div style="background:#fff;border-radius:16px;padding:20px;max-width:360px;box-shadow:0 12px 40px rgba(0,0,0,.2)">' +
-      '<h3 style="margin:0 0 8px">Selamat datang</h3>' +
-      '<ol style="margin:0 0 12px;padding-left:18px;line-height:1.5">' +
-      '<li>Isi profil (atasan, kota SPL, paraf)</li>' +
-      '<li>Ambil foto lembur tiap hari kerja</li>' +
-      '<li>Buat PDF form di menu Form</li></ol>' +
-      '<button type="button" class="tombol utama" id="tutupOnboard" style="width:100%">Mengerti</button></div>';
-    document.body.appendChild(d);
-    d.querySelector("#tutupOnboard").onclick = function () {
-      simpan("onboardingLembur", "1");
-      d.remove();
+  
+  const KUNCI_TUTORIAL = "tutorialLemburan_v1";
+
+  const LANGKAH_TUTORIAL = [
+    {
+      panel: "foto",
+      sorot: "#navAlat",
+      ikon: "👋",
+      judul: "Selamat datang di Website Lemburan",
+      teks: "Ini perangkat baru Anda. Ikuti 5 langkah singkat agar mahir memakai semua tools."
+    },
+    {
+      panel: "foto",
+      sorot: '#navAlat button[data-panel="foto"]',
+      ikon: "📷",
+      judul: "1. Foto lembur",
+      teks: "Ketuk ikon Foto. Ambil foto pekerjaan, isi tiket/customer, lalu Simpan. Foto otomatis berstempel jam & lokasi."
+    },
+    {
+      panel: "data",
+      sorot: '#navAlat button[data-panel="data"]',
+      ikon: "🧾",
+      judul: "2. Data & Form PDF",
+      teks: "Ketuk Data & Form. Pilih periode gaji, cek ringkasan, lalu buat PDF Form Tunjangan Kerja + SPL (logo mengikuti OC Anda)."
+    },
+    {
+      panel: "scan",
+      sorot: '#navAlat button[data-panel="scan"]',
+      ikon: "📄",
+      judul: "3. Scan dokumen",
+      teks: "Ketuk Scan untuk memindai kertas (surat, form). Bisa OCR teks, baca QR, dan simpan sebagai PDF."
+    },
+    {
+      panel: "foto",
+      sorot: "#ubahProfil",
+      ikon: "👤",
+      judul: "4. Lengkapi profil",
+      teks: "Isi atasan, kota SPL, dan gambar paraf digital. Data ini dipakai di PDF form lembur."
+    },
+    {
+      panel: "foto",
+      sorot: "#navAlat",
+      ikon: "✅",
+      judul: "Siap dipakai",
+      teks: "Tutorial ini hanya muncul sekali di HP ini. Ketuk ikon di atas kapan saja untuk pindah tools. Selamat bekerja!"
+    }
+  ];
+
+  let tutIdx = 0;
+  let tutEl = null;
+  let tutSorot = null;
+
+  function tutorialSudah() {
+    try { return !!localStorage.getItem(KUNCI_TUTORIAL); } catch (e) { return false; }
+  }
+  function tandaiTutorialSelesai() {
+    try { localStorage.setItem(KUNCI_TUTORIAL, "1"); } catch (e) {}
+  }
+
+  function hapusTutorialUI() {
+    if (tutEl) { tutEl.remove(); tutEl = null; }
+    if (tutSorot) { tutSorot.remove(); tutSorot = null; }
+  }
+
+  function posisikanSorot(sel) {
+    if (tutSorot) { tutSorot.remove(); tutSorot = null; }
+    if (!sel) return;
+    const target = document.querySelector(sel);
+    if (!target || target.hidden) return;
+    const r = target.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return;
+    const pad = 6;
+    tutSorot = document.createElement("div");
+    tutSorot.className = "tut-sorot";
+    tutSorot.style.left = Math.max(4, r.left - pad) + "px";
+    tutSorot.style.top = Math.max(4, r.top - pad) + "px";
+    tutSorot.style.width = Math.min(window.innerWidth - 8, r.width + pad * 2) + "px";
+    tutSorot.style.height = Math.min(window.innerHeight - 8, r.height + pad * 2) + "px";
+    document.body.appendChild(tutSorot);
+  }
+
+  function renderTutorial() {
+    hapusTutorialUI();
+    const langkah = LANGKAH_TUTORIAL[tutIdx];
+    if (!langkah) { tandaiTutorialSelesai(); return; }
+
+    try {
+      if (langkah.panel && typeof bukaPanelAlat === "function") bukaPanelAlat(langkah.panel);
+    } catch (e) {}
+
+    setTimeout(function () {
+      posisikanSorot(langkah.sorot);
+    }, 200);
+
+    tutEl = document.createElement("div");
+    tutEl.className = "tut-latar";
+    tutEl.setAttribute("role", "dialog");
+    tutEl.setAttribute("aria-modal", "true");
+    tutEl.innerHTML =
+      '<div class="tut-kartu">' +
+        '<div class="tut-gambar"><div class="tut-ilustrasi"><span class="besar">' + langkah.ikon + '</span><span>Langkah ' + (tutIdx + 1) + ' / ' + LANGKAH_TUTORIAL.length + '</span></div></div>' +
+        '<div class="tut-badan"><h3>' + langkah.judul + '</h3><p>' + langkah.teks + '</p>' +
+        '<div class="tut-langkah" id="tutDots"></div></div>' +
+        '<div class="tut-aksi">' +
+          '<button type="button" class="mini" id="tutLewati">Lewati</button>' +
+          '<button type="button" class="simpan" id="tutLanjut">' + (tutIdx >= LANGKAH_TUTORIAL.length - 1 ? "Selesai" : "Lanjut") + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(tutEl);
+
+    const dots = tutEl.querySelector("#tutDots");
+    LANGKAH_TUTORIAL.forEach(function (_, i) {
+      const d = document.createElement("i");
+      if (i === tutIdx) d.className = "aktif";
+      dots.appendChild(d);
+    });
+
+    tutEl.querySelector("#tutLewati").onclick = function () {
+      tandaiTutorialSelesai();
+      hapusTutorialUI();
     };
+    tutEl.querySelector("#tutLanjut").onclick = function () {
+      if (tutIdx >= LANGKAH_TUTORIAL.length - 1) {
+        tandaiTutorialSelesai();
+        hapusTutorialUI();
+        return;
+      }
+      tutIdx++;
+      renderTutorial();
+    };
+  }
+
+  function mulaiTutorialJikaPerangkatBaru() {
+    if (tutorialSudah()) return;
+    if (!$("app") || $("app").hidden) return;
+    tutIdx = 0;
+    setTimeout(renderTutorial, 500);
+  }
+
+  function tampilkanOnboarding() {
+    mulaiTutorialJikaPerangkatBaru();
   }
 
   const ASET_LOGO = {
