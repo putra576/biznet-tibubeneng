@@ -1443,6 +1443,44 @@
     }
   }
 
+
+  .banner-upgrade {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: max(10px, env(safe-area-inset-top));
+    z-index: 12000;
+    max-width: min(94vw, 420px);
+    width: max-content;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color: #fff;
+    box-shadow: 0 12px 32px -8px rgb(var(--glow) / 0.55);
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    animation: naikHalus 0.35s var(--ease);
+  }
+  .banner-upgrade button {
+    border: 0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 0.84rem;
+    cursor: pointer;
+    background: #fff;
+    color: var(--accent-deep);
+  }
+  .banner-upgrade button.sekunder {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgb(255 255 255 / 0.45);
+  }
 </style>
 
 <link rel="manifest" id="pwaManifest">
@@ -1477,6 +1515,11 @@
 </head>
 <body>
 <noscript><div style="padding:24px;font-family:system-ui;text-align:center"><p>Aktifkan JavaScript untuk memakai Website Lemburan.</p></div></noscript>
+<div class="banner-upgrade" id="bannerUpgrade" hidden role="alert">
+  <span id="teksBannerUpgrade">Ada pembaruan website.</span>
+  <button type="button" id="btnUpgradeSekarang">Muat ulang</button>
+  <button type="button" class="sekunder" id="btnUpgradeNanti">Nanti</button>
+</div>
 <div class="balon-loading" id="balonLoading" hidden aria-live="polite" aria-busy="true">
   <div class="isi">
     <div class="putar" aria-hidden="true"></div>
@@ -1562,6 +1605,7 @@
     <div class="profil-baris"><span>Tempat kerja</span><strong id="pKantor">-</strong></div>
     <div class="profil-baris"><span>NIK Biznet</span><strong id="pNik">-</strong></div>
     <div class="profil-baris"><span>OC</span><strong id="pOc">-</strong></div>
+    <div class="profil-baris"><span>WhatsApp</span><strong id="pWa">-</strong></div>
     <div class="aksi-data">
       <button type="button" class="mini" id="ubahProfil">Ubah profil</button>
       <button type="button" class="mini bahaya" id="keluarAkun">Keluar</button>
@@ -1791,6 +1835,84 @@
       <div id="statusAdminData" class="status" hidden></div>
     </div>
     <button type="button" class="mini" id="muatAkun" style="margin-top:10px">Muat ulang daftar akun</button>
+
+    
+    <div style="margin:16px 0 8px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface)">
+      <h3 style="margin:0 0 8px;font-size:1rem">💬 WhatsApp Business API</h3>
+      <p class="petunjuk" style="margin:0 0 10px">
+        Hubungkan manual ke <strong>WhatsApp Cloud API</strong> (Meta). 
+        Berguna untuk <strong>notifikasi</strong> (akun disetujui, tes) dan perintah sederhana (<code>BANTUAN</code>, <code>STATUS</code>).
+        User bisa <strong>kirim foto lembur / PDF lewat WA</strong> → otomatis ke Drive &amp; Sheet, lalu dapat konfirmasi + tautan di WA. Caption opsional (tanggal, jam, lokasi, ket). Ketik BANTUAN di WA untuk format.
+      </p>
+      <label class="cek"><input type="checkbox" id="waAktif"> Aktifkan pengiriman WhatsApp</label>
+      <div class="kolom"><label for="waToken">Access Token (Meta)</label><input type="password" id="waToken" autocomplete="off" placeholder="Token dari Meta Developer"></div>
+      <div class="kolom"><label for="waPhoneId">Phone Number ID</label><input type="text" id="waPhoneId" autocomplete="off" placeholder="ID nomor WhatsApp Business"></div>
+      <div class="kolom"><label for="waVerify">Verify token (webhook)</label><input type="text" id="waVerify" autocomplete="off" placeholder="String bebas, samakan di Meta"></div>
+      <div class="kolom"><label for="waAdmin">Nomor admin (62…)</label><input type="text" id="waAdmin" autocomplete="off" placeholder="6281234567890"></div>
+      <p class="petunjuk" id="waWebhookInfo" style="margin:8px 0;font-size:0.78rem">Webhook URL: (muat status dulu)</p>
+      <div class="aksi-data">
+        <button type="button" class="mini" id="btnWaStatus">Muat status</button>
+        <button type="button" class="mini utama" id="btnWaSimpan">Simpan pengaturan</button>
+        <button type="button" class="mini" id="btnWaTes">Kirim pesan tes</button>
+      </div>
+      <div id="statusWa" class="status" hidden style="margin-top:8px"></div>
+    </div>
+
+    <div style="margin:20px 0 8px;padding:14px;border:1px solid var(--danger);border-radius:var(--radius-sm);background:rgb(192 57 43 / 0.06)">
+      <h3 style="margin:0 0 8px;font-size:1rem;color:var(--danger)">⚠️ Hapus file &amp; data (bukan akun)</h3>
+      <p class="petunjuk" style="margin:0 0 10px">
+        Menghapus <strong>foto/file di Drive</strong> (masuk sampah) dan <strong>data di Sheet</strong> (tab Lembur / Log / Scan).
+        <strong>Akun login tidak dihapus</strong> — user tetap bisa masuk; data mulai kosong lagi.
+        File di sampah Drive masih bisa dipulihkan ±30 hari.
+      </p>
+      <label class="cek"><input type="checkbox" id="hapusSemuaDrive" checked> Hapus file foto &amp; folder data user di Drive</label>
+      <label class="cek"><input type="checkbox" id="hapusSemuaSheet" checked> Hapus data di Sheet (tab Lembur / Log / Scan)</label>
+      <div class="kolom" style="margin-top:10px">
+        <label for="konfirmasiHapusSemua">Ketik <strong>HAPUS SEMUA</strong> untuk konfirmasi</label>
+        <input type="text" id="konfirmasiHapusSemua" autocomplete="off" placeholder="HAPUS SEMUA" autocapitalize="characters">
+      </div>
+      <button type="button" class="mini bahaya" id="btnHapusSemuaData" style="margin-top:10px">Hapus file &amp; data</button>
+      <div id="statusHapusSemua" class="status" hidden style="margin-top:8px"></div>
+    </div>
+
+    <div style="margin:16px 0 8px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--accent-soft)">
+      <h3 style="margin:0 0 8px;font-size:1rem">🗓️ Hapus file lama (otomatis)</h3>
+      <p class="petunjuk" style="margin:0 0 8px">
+        Server dapat menghapus otomatis foto/file Drive dan baris Sheet yang lebih tua dari masa retensi (default 90 hari).
+        Akun login tidak tersentuh. File masuk sampah Drive.
+      </p>
+      <div id="statusHapusLamaInfo" class="petunjuk">Belum dimuat. Ketuk “Cek pengaturan”.</div>
+      <div class="aksi-data" style="margin-top:10px">
+        <button type="button" class="mini" id="btnCekHapusLama">Cek pengaturan</button>
+        <button type="button" class="mini bahaya" id="btnJalankanHapusLama">Jalankan sekarang</button>
+      </div>
+      <div id="statusHapusLama" class="status" hidden style="margin-top:8px"></div>
+      <p class="petunjuk" style="margin:10px 0 0;font-size:0.78rem">
+        Agar jalan tiap hari: di Apps Script, jalankan sekali fungsi <code>pasangTriggerHapusLama</code> (atau Triggers → time-driven → <code>hapusFileLamaOtomatis</code>).
+        Ubah lama simpan di Code.gs: <code>HAPUS_OTOMATIS_HARI</code>.
+      </p>
+    </div>
+
+    <div style="margin:16px 0 8px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-sm)">
+      <h3 style="margin:0 0 8px;font-size:1rem">🗑️ Sampah folder Drive</h3>
+      <p class="petunjuk" style="margin:0 0 8px">
+        Lihat item di sampah Drive, pulihkan folder/file, atau hapus permanen.
+        Pulihkan tidak perlu Drive API. Hapus permanen lebih aman lewat drive.google.com → Sampah, atau aktifkan Drive API di Apps Script.
+      </p>
+      <div class="aksi-data">
+        <button type="button" class="mini" id="btnMuatSampahDrive">Muat daftar sampah</button>
+        <button type="button" class="mini" id="btnPulihSampahPilih">Pulihkan yang dicentang</button>
+      </div>
+      <div id="isiSampahDrive" class="petunjuk" style="margin-top:10px">Belum dimuat.</div>
+      <div class="kolom" style="margin-top:10px">
+        <label for="konfirmasiKosongSampah">Hapus permanen — ketik <strong>KOSONGKAN SAMPAH</strong></label>
+        <input type="text" id="konfirmasiKosongSampah" autocomplete="off" placeholder="KOSONGKAN SAMPAH" autocapitalize="characters">
+      </div>
+      <button type="button" class="mini bahaya" id="btnKosongkanSampah" style="margin-top:8px">Hapus permanen yang dicentang</button>
+      <div id="statusSampahDrive" class="status" hidden style="margin-top:8px"></div>
+    </div>
+
+
   </section>
 
   <details class="pengaturan reveal" id="pengaturan">
@@ -1812,6 +1934,21 @@
     <button type="button" class="tautan" id="simpanPengaturan" style="margin-top:12px">Simpan pengaturan</button>
     <button type="button" class="tautan" id="tesKoneksi" style="margin:12px 0 0 18px">Tes koneksi</button>
     <span class="hasil-tes" id="hasilTes" role="status" aria-live="polite"></span>
+    <div class="versi-app" id="panelVersiApp">
+      <h3 style="margin:16px 0 8px;font-size:0.95rem">Manajemen versi</h3>
+      <div class="profil-baris"><span>Website (HP)</span><strong id="vClient"></strong></div>
+      <div class="profil-baris"><span>Server (Apps Script)</span><strong id="vServer">—</strong></div>
+      <div class="profil-baris"><span>Status</span><strong id="vStatus">Belum dicek</strong></div>
+      <p class="petunjuk" id="vCatatan" style="margin:8px 0 0">Samakan versi Website &amp; Server agar fitur lengkap.</p>
+      <div class="aksi-data" style="margin-top:10px">
+        <button type="button" class="mini" id="btnCekVersi">Cek versi sekarang</button>
+        <button type="button" class="mini utama" id="btnMuatVersiBaru">Muat ulang app</button>
+      </div>
+      <details style="margin-top:12px">
+        <summary style="cursor:pointer;font-weight:700;font-size:0.88rem">Riwayat versi singkat</summary>
+        <ul id="vRiwayat" class="petunjuk" style="margin:8px 0 0;padding-left:18px;font-size:0.8rem"></ul>
+      </details>
+    </div>
   </details>
 </main>
 
@@ -1927,6 +2064,7 @@
   </div>
   <div class="kolom"><label for="pfAtasan">Nama atasan</label><input type="text" id="pfAtasan" autocapitalize="characters" placeholder="Nama atasan untuk form/SPL"></div>
   <div class="kolom"><label for="pfKota">Kota (SPL)</label><input type="text" id="pfKota" placeholder="Contoh: Tibubeneng / Jakarta"></div>
+  <div class="kolom"><label for="pfWa">WhatsApp (62…)</label><input type="text" id="pfWa" inputmode="tel" placeholder="6281234567890" autocomplete="tel"></div>
   <div class="kolom">
     <label>Tanda tangan digital (paraf karyawan)</label>
     <p class="petunjuk" style="margin:4px 0 8px">Gambar paraf di kotak. Dipakai di kolom Paraf Karyawan pada PDF form.</p>
@@ -2020,7 +2158,18 @@
   let urlPratinjau = null;
   let sedangKirim = false;
 
-  const VERSI_SERVER = "2026.09.28.7";   // harus sama dengan VERSI_ di Code.gs
+  const VERSI_SERVER = "2026.09.28.16";   // harus sama dengan VERSI_ di Code.gs
+  /** Catatan rilis (tampil di Profil → Koneksi → Manajemen versi) */
+  const RIWAYAT_VERSI = [
+    { v: "2026.09.28.9", t: "Manajemen versi app (cek client/server, riwayat)" },
+    { v: "2026.09.28.8", t: "Banner auto-upgrade saat versi tidak cocok" },
+    { v: "2026.09.28.7", t: "Kehadiran real-time adaptif + piggyback API" },
+    { v: "2026.09.28.6", t: "Balon pengguna aktif pojok kanan bawah" },
+    { v: "2026.09.28.5", t: "Lock hanya untuk tulis — lebih banyak user paralel" },
+    { v: "2026.09.28.3", t: "UI animasi & tampilan lebih menarik" },
+    { v: "2026.09.27.4", t: "Zoom cek foto di tools Foto & Scan" },
+    { v: "2026.09.27.3", t: "Scan fokus bentuk formulir A4" }
+  ];
   const PESAN_KONEKSI = "Tidak bisa terhubung ke Apps Script. Pastikan deployment diatur Who has access: Anyone dan alamatnya berakhiran /exec.";
 
   const kamera = { stream: null, pos: null, gpsError: null, watchId: null, alamat: [], alamatPos: null, alamatWaktu: 0, timer: null, heading: null, jejak: [], onOri: null };
@@ -2122,6 +2271,261 @@
     if ($("jmlAkunDisetujui")) $("jmlAkunDisetujui").textContent = String(disetujui);
     if ($("jmlAkunDitolak")) $("jmlAkunDitolak").textContent = String(ditolak);
   }
+
+
+
+
+  function statusSampah(t, j) {
+    const el = $("statusSampahDrive");
+    if (!el) return;
+    el.hidden = !t;
+    el.textContent = t || "";
+    el.className = "status" + (j ? " " + j : "");
+  }
+
+
+  function statusWa(t, j) {
+    const el = $("statusWa");
+    if (!el) return;
+    el.hidden = !t;
+    el.textContent = t || "";
+    el.className = "status" + (j ? " " + j : "");
+  }
+
+  async function muatStatusWa() {
+    statusWa("");
+    try {
+      const h = await panggil({ aksi: "waStatus", _label: "Status WhatsApp…" });
+      if ($("waAktif")) $("waAktif").checked = !!h.aktif;
+      if ($("waPhoneId") && h.phoneId && !$("waPhoneId").value) $("waPhoneId").placeholder = h.phoneId;
+      if ($("waAdmin") && h.adminWa) $("waAdmin").value = h.adminWa;
+      if ($("waWebhookInfo")) {
+        $("waWebhookInfo").innerHTML =
+          "Webhook URL (tempel di Meta): <code style=\"word-break:break-all\">" + (h.webhookUrl || "-") + "</code><br>" +
+          (h.catatan || "");
+      }
+      statusWa(
+        (h.aktif ? "Aktif" : "Nonaktif") +
+          " · Token: " + (h.punyaToken ? "ada" : "belum") +
+          " · Phone ID: " + (h.phoneId || "-"),
+        h.aktif && h.punyaToken ? "ok" : ""
+      );
+    } catch (err) {
+      statusWa(err.message || String(err), "gagal");
+    }
+  }
+
+  async function simpanConfigWa() {
+    statusWa("Menyimpan…", "");
+    try {
+      const h = await panggil({
+        aksi: "waSimpanConfig",
+        aktif: $("waAktif") ? $("waAktif").checked : false,
+        token: $("waToken") ? $("waToken").value.trim() : "",
+        phoneId: $("waPhoneId") ? $("waPhoneId").value.trim() : "",
+        verify: $("waVerify") ? $("waVerify").value.trim() : "",
+        adminWa: $("waAdmin") ? $("waAdmin").value.trim() : "",
+        _label: "Simpan WhatsApp…"
+      });
+      statusWa(h.pesan || "Tersimpan.", "ok");
+      if ($("waToken")) $("waToken").value = "";
+      await muatStatusWa();
+    } catch (err) {
+      statusWa(err.message || String(err), "gagal");
+    }
+  }
+
+  async function tesWa() {
+    const ke = $("waAdmin") ? $("waAdmin").value.trim() : "";
+    statusWa("Mengirim tes…", "");
+    try {
+      const h = await panggil({ aksi: "waTes", ke: ke, _label: "Tes WhatsApp…" });
+      statusWa(h.pesan || "Terkirim.", "ok");
+    } catch (err) {
+      statusWa(err.message || String(err), "gagal");
+    }
+  }
+
+
+  async function muatSampahDrive() {
+    const wadah = $("isiSampahDrive");
+    if (wadah) wadah.textContent = "Memuat…";
+    statusSampah("");
+    try {
+      const h = await panggil({ aksi: "adminSampahDrive", batas: 50, _label: "Memuat sampah Drive…" });
+      const daftar = h.daftar || [];
+      if (!daftar.length) {
+        if (wadah) wadah.textContent = "Tidak ada item sampah terkait (atau sampah kosong). Folder terdeteksi: " + (h.totalFolderSampah || 0) + ", file: " + (h.totalFileSampah || 0) + ".";
+        return;
+      }
+      if (wadah) {
+        wadah.innerHTML = "";
+        const ul = document.createElement("ul");
+        ul.className = "daftar-data";
+        daftar.forEach(function (it) {
+          const li = document.createElement("li");
+          const id = "sampah_" + it.id;
+          li.innerHTML =
+            '<label class="cek" style="display:flex;gap:8px;align-items:flex-start">' +
+            '<input type="checkbox" class="cek-sampah" value="' + it.id + '" id="' + id + '">' +
+            '<span><strong>' + (it.jenis === "folder" ? "📁 " : "📄 ") + (it.nama || it.id) + '</strong><br>' +
+            '<span class="lok">' + (it.tanggal || "") + (it.url ? ' · <a href="' + it.url + '" target="_blank" rel="noopener">buka</a>' : "") + "</span></span></label>";
+          ul.appendChild(li);
+        });
+        wadah.appendChild(ul);
+        const ket = document.createElement("p");
+        ket.className = "petunjuk";
+        ket.textContent = "Menampilkan " + daftar.length + " item. Centang lalu Pulihkan atau Hapus permanen.";
+        wadah.appendChild(ket);
+      }
+    } catch (err) {
+      if (wadah) wadah.textContent = "Gagal: " + (err.message || err);
+    }
+  }
+
+  function idSampahTercentang() {
+    return Array.prototype.map.call(document.querySelectorAll(".cek-sampah:checked"), function (el) {
+      return el.value;
+    });
+  }
+
+  async function pulihSampahPilih() {
+    const ids = idSampahTercentang();
+    if (!ids.length) { statusSampah("Centang minimal satu item.", "gagal"); return; }
+    if (!confirm("Pulihkan " + ids.length + " item dari sampah?")) return;
+    statusSampah("Memulihkan…", "");
+    try {
+      const h = await panggil({ aksi: "adminPulihSampah", ids: ids, _label: "Memulihkan…" });
+      statusSampah(h.pesan || "Selesai.", "ok");
+      await muatSampahDrive();
+    } catch (err) {
+      statusSampah(err.message || String(err), "gagal");
+    }
+  }
+
+  async function kosongkanSampahPilih() {
+    const ids = idSampahTercentang();
+    const konfirmasi = ($("konfirmasiKosongSampah") && $("konfirmasiKosongSampah").value || "").trim();
+    if (konfirmasi !== "KOSONGKAN SAMPAH") {
+      statusSampah('Ketik tepat "KOSONGKAN SAMPAH".', "gagal");
+      return;
+    }
+    if (!ids.length) {
+      statusSampah("Centang item yang akan dihapus permanen, atau aktifkan Drive API untuk mengosongkan seluruh sampah.", "gagal");
+      return;
+    }
+    if (!confirm("HAPUS PERMANEN " + ids.length + " item? Tidak bisa dibatalkan.")) return;
+    statusSampah("Menghapus permanen…", "");
+    try {
+      const h = await panggil({
+        aksi: "adminKosongkanSampah",
+        ids: ids,
+        konfirmasi: "KOSONGKAN SAMPAH",
+        _label: "Hapus permanen…"
+      });
+      statusSampah(h.pesan || "Selesai.", h.ok === false ? "gagal" : "ok");
+      if ($("konfirmasiKosongSampah")) $("konfirmasiKosongSampah").value = "";
+      await muatSampahDrive();
+    } catch (err) {
+      statusSampah(err.message || String(err), "gagal");
+    }
+  }
+
+
+  async function cekPengaturanHapusLama() {
+    const info = $("statusHapusLamaInfo");
+    const status = function (t, j) {
+      const el = $("statusHapusLama");
+      if (!el) return;
+      el.hidden = !t;
+      el.textContent = t || "";
+      el.className = "status" + (j ? " " + j : "");
+    };
+    try {
+      const h = await panggil({ aksi: "adminStatusHapusLama", _label: "Cek retensi…" });
+      const t = h.terakhir;
+      let teks = (h.aktif ? "Aktif" : "Nonaktif") + " · retensi " + h.hari + " hari";
+      teks += " · Drive: " + (h.drive ? "ya" : "tidak") + " · Sheet: " + (h.sheet ? "ya" : "tidak");
+      if (t && t.waktu) {
+        teks += " · terakhir: " + t.waktu + " (file " + (t.file || 0) + ", baris " + (t.baris || 0) + ")";
+      } else {
+        teks += " · belum pernah jalan";
+      }
+      if (info) info.textContent = teks;
+      status("", "");
+    } catch (err) {
+      if (info) info.textContent = "Gagal: " + (err.message || err);
+    }
+  }
+
+  async function jalankanHapusLamaManual() {
+    const status = function (t, j) {
+      const el = $("statusHapusLama");
+      if (!el) return;
+      el.hidden = !t;
+      el.textContent = t || "";
+      el.className = "status" + (j ? " " + j : "");
+    };
+    if (!confirm("Jalankan pembersihan file/data yang lebih tua dari masa retensi sekarang?")) return;
+    status("Menjalankan…", "");
+    try {
+      const h = await panggil({ aksi: "adminHapusLama", _label: "Hapus file lama…" });
+      status(h.pesan || "Selesai.", "ok");
+      try { await cekPengaturanHapusLama(); } catch (e) {}
+    } catch (err) {
+      status(err.message || String(err), "gagal");
+    }
+  }
+
+
+  async function jalankanHapusSemuaData() {
+    const status = function (t, j) {
+      const el = $("statusHapusSemua");
+      if (!el) return;
+      el.hidden = !t;
+      el.textContent = t || "";
+      el.className = "status" + (j ? " " + j : "");
+    };
+    const konfirmasi = ($("konfirmasiHapusSemua") && $("konfirmasiHapusSemua").value || "").trim();
+    if (konfirmasi !== "HAPUS SEMUA") {
+      status('Ketik tepat "HAPUS SEMUA" di kotak konfirmasi.', "gagal");
+      return;
+    }
+    const hapusDrive = $("hapusSemuaDrive") ? $("hapusSemuaDrive").checked : true;
+    const hapusSheet = $("hapusSemuaSheet") ? $("hapusSemuaSheet").checked : true;
+    if (!hapusDrive && !hapusSheet) {
+      status("Pilih minimal: Drive atau Sheet.", "gagal");
+      return;
+    }
+    let msg = "Yakin hapus FILE & DATA?\n\n";
+    if (hapusDrive) msg += "• Foto/file user di Drive → sampah\n";
+    if (hapusSheet) msg += "• Data tab Lembur / Log / Scan di Sheet\n";
+    msg += "\nAkun login TIDAK dihapus.";
+    if (!confirm(msg)) return;
+    if (!confirm("Konfirmasi kedua: hapus file & data saja (akun tetap)?")) return;
+
+    const tombol = $("btnHapusSemuaData");
+    if (tombol) tombol.disabled = true;
+    status("Menghapus file & data… tunggu hingga selesai.", "");
+    try {
+      const h = await panggil({
+        aksi: "adminHapusSemua",
+        konfirmasi: "HAPUS SEMUA",
+        hapusDrive: hapusDrive,
+        hapusSheet: hapusSheet,
+        hapusAkunUser: false,
+        _label: "Menghapus file & data…"
+      });
+      status(h.pesan || "Selesai.", "ok");
+      if ($("konfirmasiHapusSemua")) $("konfirmasiHapusSemua").value = "";
+      try { await muatDaftarAkun(); } catch (e) {}
+    } catch (err) {
+      status(err.message || String(err), "gagal");
+    } finally {
+      if (tombol) tombol.disabled = false;
+    }
+  }
+
 
   async function muatDaftarAkun() {
     if (!$("bagianAdmin") || $("bagianAdmin").hidden) return;
@@ -2399,6 +2803,7 @@
     $("pfOc").value = profilAktif.oc || "S3";
     if ($("pfAtasan")) $("pfAtasan").value = profilAktif.atasan || "";
     if ($("pfKota")) $("pfKota").value = profilAktif.kota || "";
+    if ($("pfWa")) $("pfWa").value = profilAktif.wa || "";
     muatParafKeKanvas();
     setStatus("", "", "statusProfil");
     $("dialogProfil").showModal();
@@ -2413,7 +2818,7 @@
       const h = await panggil({
         aksi: "perbaruiProfil", nama: $("pfNama").value.trim(),
         jabatan: $("pfJabatan").value, kantor: $("pfKantor").value.trim(),
-        nik: $("pfNik").value.trim(), oc: $("pfOc").value, atasan: $("pfAtasan").value.trim(), kota: $("pfKota").value.trim()
+        nik: $("pfNik").value.trim(), oc: $("pfOc").value, atasan: $("pfAtasan").value.trim(), kota: $("pfKota").value.trim(), wa: $("pfWa") ? $("pfWa").value.trim() : ""
       });
       terapkanProfil(h.profil);
       $("dialogProfil").close();
@@ -3164,6 +3569,7 @@
         throw new Error(h.error || "Server menolak permintaan.");
       }
       try { serapKehadiranDariRespon(h); } catch (e) {}
+      try { cekUpgradeDariRespon(h); } catch (e) {}
       return h;
     } catch (err) {
       if (err && err.name === "AbortError") {
@@ -5496,7 +5902,36 @@
   ["edJenis", "edTiket", "edCustomer"].forEach((id) => $(id).addEventListener("input", perbaruiPratinjauEdit));
   $("muatKapasitas").addEventListener("click", () => muatKapasitas(true));
   if ($("isiBalonAktif")) $("isiBalonAktif").addEventListener("click", function () { muatPenggunaAktif(); });
+  if ($("btnUpgradeSekarang")) $("btnUpgradeSekarang").addEventListener("click", muatUlangVersiBaru);
+  if ($("btnMuatVersiBaru")) $("btnMuatVersiBaru").addEventListener("click", muatUlangVersiBaru);
+  if ($("btnCekVersi")) $("btnCekVersi").addEventListener("click", function () {
+    muatPenggunaAktif(true);
+    tesKoneksi();
+  });
+  try {
+    if ($("vClient")) $("vClient").textContent = VERSI_SERVER;
+    perbaruiPanelVersi(ambil("versiServerTerakhir") || "");
+    isiRiwayatVersi();
+  } catch (e) {}
+  if ($("btnUpgradeNanti")) $("btnUpgradeNanti").addEventListener("click", function () {
+    _bannerUpgradeDitutup = true;
+    try {
+      const sv = ambil("versiServerTerakhir") || "";
+      simpan(KUNCI_SKIP_UPGRADE, sv);
+    } catch (e) {}
+    const el = $("bannerUpgrade");
+    if (el) el.hidden = true;
+  });
   $("muatAkun").addEventListener("click", muatDaftarAkun);
+  if ($("btnHapusSemuaData")) $("btnHapusSemuaData").addEventListener("click", jalankanHapusSemuaData);
+  if ($("btnCekHapusLama")) $("btnCekHapusLama").addEventListener("click", cekPengaturanHapusLama);
+  if ($("btnJalankanHapusLama")) $("btnJalankanHapusLama").addEventListener("click", jalankanHapusLamaManual);
+  if ($("btnMuatSampahDrive")) $("btnMuatSampahDrive").addEventListener("click", muatSampahDrive);
+  if ($("btnWaStatus")) $("btnWaStatus").addEventListener("click", muatStatusWa);
+  if ($("btnWaSimpan")) $("btnWaSimpan").addEventListener("click", simpanConfigWa);
+  if ($("btnWaTes")) $("btnWaTes").addEventListener("click", tesWa);
+  if ($("btnPulihSampahPilih")) $("btnPulihSampahPilih").addEventListener("click", pulihSampahPilih);
+  if ($("btnKosongkanSampah")) $("btnKosongkanSampah").addEventListener("click", kosongkanSampahPilih);
   $("batalResetSandi").addEventListener("click", () => $("dialogResetSandi").close());
   $("yakinResetSandi").addEventListener("click", jalankanResetSandi);
   $("batalHapusAkun").addEventListener("click", () => $("dialogHapusAkun").close());
@@ -5542,6 +5977,114 @@
   $("simpanProfil").addEventListener("click", simpanProfilBaru);
 
   // Data yang perlu akun aktif baru dimuat setelah login berhasil (lihat mulaiApp, dipanggil dari tampilkanApp()).
+
+
+  /* ---------- Auto-upgrade saat server/versi baru ---------- */
+  const KUNCI_SKIP_UPGRADE = "skipUpgradeVersi";
+  let _bannerUpgradeDitutup = false;
+
+  function bandingVersi(a, b) {
+    // "2026.09.28.8" → bandingkan numerik per segmen
+    const pa = String(a || "").split(".").map(Number);
+    const pb = String(b || "").split(".").map(Number);
+    const n = Math.max(pa.length, pb.length);
+    for (let i = 0; i < n; i++) {
+      const x = pa[i] || 0, y = pb[i] || 0;
+      if (x > y) return 1;
+      if (x < y) return -1;
+    }
+    return 0;
+  }
+
+  function muatUlangVersiBaru() {
+    try {
+      // Bersihkan cache ringan; akun/session (localStorage token) tetap
+      if ("caches" in window) {
+        caches.keys().then(function (keys) {
+          keys.forEach(function (k) { caches.delete(k); });
+        }).catch(function () {});
+      }
+    } catch (e) {}
+    const u = new URL(location.href);
+    u.searchParams.set("v", String(Date.now()));
+    location.replace(u.toString());
+  }
+
+  function tampilkanBannerUpgrade(pesan, serverVersi) {
+    if (_bannerUpgradeDitutup) return;
+    try {
+      if (ambil(KUNCI_SKIP_UPGRADE) === String(serverVersi || "")) return;
+    } catch (e) {}
+    const el = $("bannerUpgrade");
+    const tx = $("teksBannerUpgrade");
+    if (!el) return;
+    if (tx) tx.textContent = pesan || "Ada pembaruan. Muat ulang agar fitur terbaru aktif.";
+    el.hidden = false;
+  }
+
+  function perbaruiPanelVersi(serverVersi) {
+    if ($("vClient")) $("vClient").textContent = VERSI_SERVER;
+    if (serverVersi && $("vServer")) $("vServer").textContent = serverVersi;
+    const sv = serverVersi || ambil("versiServerTerakhir") || "";
+    const st = $("vStatus");
+    const cat = $("vCatatan");
+    if (!st) return;
+    if (!sv) {
+      st.textContent = "Belum dicek";
+      st.style.color = "var(--muted)";
+      return;
+    }
+    const cmp = bandingVersi(sv, VERSI_SERVER);
+    if (cmp === 0) {
+      st.textContent = "Sinkron ✓";
+      st.style.color = "var(--ok)";
+      if (cat) cat.textContent = "Website dan server sama (v" + VERSI_SERVER + "). Siap dipakai.";
+    } else if (cmp > 0) {
+      st.textContent = "Website perlu di-update";
+      st.style.color = "var(--accent-2)";
+      if (cat) cat.textContent = "Server v" + sv + " lebih baru. Admin upload index.html, lalu user muat ulang.";
+    } else {
+      st.textContent = "Server perlu Deploy";
+      st.style.color = "var(--danger)";
+      if (cat) cat.textContent = "Website v" + VERSI_SERVER + " tetapi server v" + sv + ". Deploy Code.gs New version.";
+    }
+  }
+
+  function isiRiwayatVersi() {
+    const ul = $("vRiwayat");
+    if (!ul || ul._isi) return;
+    ul._isi = true;
+    RIWAYAT_VERSI.forEach(function (r) {
+      const li = document.createElement("li");
+      li.textContent = "v" + r.v + " — " + r.t;
+      ul.appendChild(li);
+    });
+  }
+
+  function cekUpgradeDariRespon(h) {
+    if (!h || !h.versi) return;
+    const sv = String(h.versi);
+    try { simpan("versiServerTerakhir", sv); } catch (e) {}
+    perbaruiPanelVersi(sv);
+    const cmp = bandingVersi(sv, VERSI_SERVER);
+    if (cmp === 0) {
+      const el = $("bannerUpgrade");
+      if (el) el.hidden = true;
+      return;
+    }
+    if (cmp > 0) {
+      tampilkanBannerUpgrade(
+        "Server sudah v" + sv + " (HP Anda v" + VERSI_SERVER + "). Muat ulang setelah file website di-update.",
+        sv
+      );
+    } else {
+      tampilkanBannerUpgrade(
+        "Website v" + VERSI_SERVER + " tetapi server masih v" + sv + ". Admin perlu Deploy Code.gs versi baru.",
+        sv
+      );
+    }
+  }
+
 
   /* ---------- Kehadiran "real-time" (polling adaptif; Apps Script tidak support WebSocket) ---------- */
   let _timerAktif = null;
