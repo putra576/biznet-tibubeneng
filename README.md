@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="theme-color" content="#0e7490">
+<meta name="theme-color" content="#0b7fa3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Website Lemburan</title>
@@ -16,24 +16,24 @@
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f4f7f9;
+    --bg: #eef5f8;
     --surface: #ffffff;
-    --ink: #12252e;
-    --muted: #5e7682;
-    --line: #d5e1e8;
+    --ink: #0f2430;
+    --muted: #5a7380;
+    --line: #cfe0e9;
     --accent: #0b7fa3;
-    --accent-deep: #066484;
-    --accent-2: #e8a43a;
-    --accent-soft: #e6f4f9;
+    --accent-deep: #055a78;
+    --accent-2: #f0a93a;
+    --accent-soft: #e3f4fb;
     --accent-ink: #ffffff;
     --danger: #c0392b;
     --ok: #0f8a5f;
     --glow: 11 127 163;
-    --glow-2: 232 164 58;
-    --radius: 18px;
-    --radius-sm: 12px;
-    --shadow: 0 1px 2px rgb(15 37 46 / 0.04), 0 8px 24px -12px rgb(15 37 46 / 0.12);
-    --shadow-lg: 0 4px 8px rgb(15 37 46 / 0.04), 0 20px 40px -20px rgb(var(--glow) / 0.35);
+    --glow-2: 240 169 58;
+    --radius: 20px;
+    --radius-sm: 14px;
+    --shadow: 0 2px 4px rgb(15 37 46 / 0.04), 0 12px 28px -14px rgb(15 37 46 / 0.14);
+    --shadow-lg: 0 8px 16px rgb(15 37 46 / 0.05), 0 28px 48px -24px rgb(var(--glow) / 0.4);
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --font: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
@@ -408,6 +408,10 @@
     box-shadow: var(--shadow);
   }
   .ringkas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  #ringkasAkunAdmin { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 420px) {
+    #ringkasAkunAdmin { grid-template-columns: repeat(4, 1fr); }
+  }
   .ringkas div {
     padding: 12px 8px; text-align: center;
     background: var(--accent-soft); border-radius: var(--radius-sm);
@@ -754,6 +758,67 @@
     border-radius: 50%;
     animation: balonPutar 0.75s linear infinite;
   }
+  /* Penampil foto/scan dengan zoom */
+  #dialogFoto {
+    max-width: min(96vw, 520px);
+    width: 96vw;
+    padding: 12px;
+  }
+  #dialogFoto::backdrop { background: rgba(10, 20, 28, 0.72); }
+  .zoom-toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin: 0 0 10px;
+  }
+  .zoom-toolbar .ket-zoom {
+    flex: 1; min-width: 80px;
+    font-size: 0.85rem; font-weight: 700; color: var(--muted);
+  }
+  .zoom-toolbar button {
+    min-width: 44px; min-height: 40px;
+    border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); font: inherit; font-weight: 800;
+    cursor: pointer;
+  }
+  .zoom-toolbar button:active { background: var(--accent-soft); }
+  .zoom-view {
+    position: relative;
+    width: 100%;
+    height: min(62vh, 480px);
+    overflow: hidden;
+    border-radius: 12px;
+    background: #0f1720;
+    border: 1px solid var(--line);
+    touch-action: none;
+    cursor: grab;
+  }
+  .zoom-view:active { cursor: grabbing; }
+  .zoom-view img {
+    position: absolute;
+    left: 50%; top: 50%;
+    max-width: none;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;
+    will-change: transform;
+  }
+  .aksi-cetak {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .aksi-cetak button {
+    flex: 1 1 auto; min-width: 110px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 12px; border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink);
+    font: inherit; font-size: 0.84rem; font-weight: 700;
+    cursor: pointer;
+  }
+  .aksi-cetak button.utama {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .aksi-cetak button:active { transform: scale(0.97); }
   .balon-loading .teks {
     font-size: 0.88rem; font-weight: 700; color: var(--ink);
     text-align: center; max-width: 200px;
@@ -801,9 +866,52 @@
   }
   .tut-langkah i.aktif { background: var(--accent); transform: scale(1.25); }
   .tut-aksi {
-    display: flex; gap: 8px; padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 16px 16px;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
   }
-  .tut-aksi button { flex: 1; }
+  .tut-aksi-nav {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .tut-aksi-nav button {
+    flex: 1;
+    min-height: 46px;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .tut-aksi-nav button#tutKembali {
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .tut-aksi-nav button#tutLanjut {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .tut-aksi-nav button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .tut-aksi .tut-lewat {
+    text-align: center;
+    background: none;
+    border: 0;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px;
+  }
   .tut-sorot {
     position: fixed; z-index: 10001;
     border: 3px solid var(--accent);
@@ -1071,6 +1179,208 @@
   }
   .logo.logo-biznet img { display: block; width: 48px; height: auto; }
 
+
+  /* ===== UI animasi & polish 2026.09.28.3 ===== */
+  @keyframes naikHalus {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.92); }
+    70% { transform: scale(1.03); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes gradientGeser {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes denyutHalus {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(var(--glow) / 0.35); }
+    50% { box-shadow: 0 0 0 8px rgb(var(--glow) / 0); }
+  }
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes shimmerBar {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgb(var(--glow) / 0.12), transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, rgb(var(--glow-2) / 0.1), transparent 50%),
+      var(--bg);
+  }
+
+  header {
+    animation: naikHalus 0.55s var(--ease) both;
+  }
+  header h1 {
+    background: linear-gradient(120deg, var(--ink) 30%, var(--accent) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.03em;
+  }
+
+  .alat-cepat {
+    animation: naikHalus 0.5s var(--ease) 0.05s both;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgb(255 255 255 / 0.88);
+  }
+  .alat-cepat button {
+    position: relative;
+    overflow: hidden;
+  }
+  .alat-cepat button.aktif {
+    animation: popIn 0.35s var(--ease);
+  }
+  .alat-cepat button.aktif .ikon-alat {
+    animation: floatY 2.4s ease-in-out infinite;
+  }
+  .btn-profil-header.aktif {
+    animation: denyutHalus 2s ease-out infinite;
+  }
+
+  .kartu-profil, .menu-profil-cepat, .form-lembur, .kartu-auth {
+    animation: naikHalus 0.45s var(--ease) both;
+    transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease), border-color 0.2s;
+  }
+  @media (hover: hover) {
+    .kartu-profil:hover, .form-lembur:hover, .menu-profil-cepat:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: rgb(var(--glow) / 0.25);
+    }
+  }
+
+  .panel-alat {
+    animation: naikHalus 0.4s var(--ease) both;
+  }
+
+  .ringkas div {
+    transition: transform 0.2s var(--ease), background 0.2s;
+    background: linear-gradient(160deg, var(--surface), var(--accent-soft));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 8px;
+  }
+  .ringkas div:active { transform: scale(0.97); }
+  .ringkas strong {
+    background: linear-gradient(120deg, var(--accent), var(--accent-deep));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .simpan, button.tombol {
+    background-size: 160% 100%;
+    background-image: linear-gradient(110deg, var(--accent) 0%, var(--accent-deep) 45%, var(--accent) 90%);
+    transition: transform 0.2s var(--ease), box-shadow 0.25s, filter 0.2s;
+  }
+  @media (hover: hover) {
+    .simpan:hover:not([disabled]), button.tombol:hover:not([disabled]) {
+      background-position: 100% 0;
+      filter: brightness(1.05);
+    }
+  }
+
+  .foto {
+    transition: transform 0.25s var(--ease), box-shadow 0.3s, border-color 0.2s;
+  }
+  .foto:active { transform: scale(0.98); }
+
+  .tombol-menu-profil {
+    transition: transform 0.2s var(--ease), background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  @media (hover: hover) {
+    .tombol-menu-profil:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -10px rgb(var(--glow) / 0.45);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+  }
+
+  .daftar-data li, .riwayat li {
+    transition: transform 0.2s var(--ease), box-shadow 0.2s, border-color 0.2s;
+    animation: naikHalus 0.35s var(--ease) both;
+  }
+  .daftar-data li:nth-child(1), .riwayat li:nth-child(1) { animation-delay: 0.02s; }
+  .daftar-data li:nth-child(2), .riwayat li:nth-child(2) { animation-delay: 0.05s; }
+  .daftar-data li:nth-child(3), .riwayat li:nth-child(3) { animation-delay: 0.08s; }
+  .daftar-data li:nth-child(4), .riwayat li:nth-child(4) { animation-delay: 0.11s; }
+  .daftar-data li:nth-child(5), .riwayat li:nth-child(5) { animation-delay: 0.14s; }
+  @media (hover: hover) {
+    .daftar-data li:hover, .riwayat li:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: rgb(var(--glow) / 0.3);
+    }
+  }
+
+  .status.ok {
+    animation: popIn 0.35s var(--ease);
+  }
+  .status.gagal {
+    animation: popIn 0.35s var(--ease);
+  }
+
+  .splash-logo-biznet img {
+    animation: floatY 3.2s ease-in-out infinite;
+  }
+  .splash-judul {
+    letter-spacing: -0.02em;
+  }
+
+  .balon-loading .isi {
+    animation: popIn 0.3s var(--ease);
+  }
+
+  .tab-auth button.aktif,
+  .tab-auth button[aria-selected="true"] {
+    background: var(--surface) !important;
+    color: var(--accent-deep) !important;
+    box-shadow: var(--shadow);
+    transition: all 0.25s var(--ease);
+  }
+
+  /* dark mode refinement */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a1217;
+      --surface: #132028;
+      --ink: #e8f1f5;
+      --muted: #8aa3b0;
+      --line: #243841;
+      --accent-soft: #163542;
+      --shadow: 0 2px 6px rgb(0 0 0 / 0.25), 0 14px 32px -16px rgb(0 0 0 / 0.5);
+    }
+    body {
+      background:
+        radial-gradient(1000px 500px at 0% 0%, rgb(var(--glow) / 0.18), transparent 50%),
+        radial-gradient(800px 400px at 100% 10%, rgb(var(--glow-2) / 0.08), transparent 45%),
+        var(--bg);
+    }
+    .alat-cepat { background: rgb(19 32 40 / 0.9); }
+    header h1 {
+      background: linear-gradient(120deg, #e8f1f5 20%, #5ec8e8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
 </style>
 
 <link rel="manifest" id="pwaManifest">
@@ -1326,8 +1636,9 @@
           <option value="asli">Warna asli</option>
         </select>
       </div>
-      <label class="cek"><input type="checkbox" id="potongOtomatis" checked> Potong otomatis</label>
+      <label class="cek"><input type="checkbox" id="potongOtomatis" checked> Potong otomatis (deteksi bentuk form)</label>
     </div>
+    <p class="petunjuk" style="margin:0 0 8px">Tips: letakkan formulir di atas permukaan kontras (meja gelap), isi bingkai A4, hindari lipatan. Setelah scan, ketuk halaman → atur sudut bila perlu.</p>
     <div class="aksi-scan">
       <button type="button" class="mini utama" id="mulaiScan">📷 Scan halaman</button>
       <label class="mini">📁 Dari galeri<input type="file" id="galeriScan" accept="image/*" multiple aria-label="Tambah halaman dari galeri"></label>
@@ -1390,6 +1701,12 @@
       Di sini admin menyetujui atau menolak pendaftar baru (email hanya pemberitahuan, tanpa tautan Setujui/Tolak).
       Juga bisa reset kata sandi atau hapus akun. Kata sandi tersimpan sebagai hash — tidak bisa dibaca teks aslinya.
     </p>
+    <div class="ringkas" id="ringkasAkunAdmin" style="margin-bottom:12px">
+      <div><strong id="jmlAkunTotal">0</strong><span>Total akun</span></div>
+      <div><strong id="jmlAkunMenunggu">0</strong><span>Menunggu</span></div>
+      <div><strong id="jmlAkunDisetujui">0</strong><span>Disetujui</span></div>
+      <div><strong id="jmlAkunDitolak">0</strong><span>Ditolak</span></div>
+    </div>
     <p class="status" id="statusAdmin" role="status" aria-live="polite"></p>
     <ul class="daftar-data" id="daftarAkun"></ul>
     <div style="margin:16px 0 8px;padding-top:12px;border-top:1px solid #dbe4ea">
@@ -1424,6 +1741,11 @@
     <div class="kolom">
       <label for="indeks">Nomor indeks foto berikutnya</label>
       <input type="text" id="indeks" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="kolom">
+      <label for="emailPrinter">Email printer (manual)</label>
+      <input type="email" id="emailPrinter" placeholder="contoh: abc@hpeprint.com" autocomplete="off" inputmode="email">
+      <p class="petunjuk" style="margin:6px 0 0">Isi alamat email printer Wi‑Fi (HP ePrint, Epson Connect, Canon, Brother, dll). Disimpan di HP ini. Kosong = pakai default server (jika ada).</p>
     </div>
     <button type="button" class="tautan" id="simpanPengaturan" style="margin-top:12px">Simpan pengaturan</button>
     <button type="button" class="tautan" id="tesKoneksi" style="margin:12px 0 0 18px">Tes koneksi</button>
@@ -1585,10 +1907,21 @@
   </div>
 </dialog>
 
-<dialog id="dialogFoto" aria-label="Foto">
-  <p id="ketFoto" class="petunjuk"></p>
-  <img id="gambarFoto" alt="Foto bukti lembur">
-  <div class="aksi-data"><button type="button" class="mini" id="tutupFoto">Tutup</button></div>
+<dialog id="dialogFoto" aria-label="Cek foto">
+  <p id="ketFoto" class="petunjuk" style="margin:0 0 8px"></p>
+  <div class="zoom-toolbar">
+    <span class="ket-zoom" id="labelZoom">100%</span>
+    <button type="button" id="zoomOut" title="Perkecil" aria-label="Zoom out">−</button>
+    <button type="button" id="zoomIn" title="Perbesar" aria-label="Zoom in">+</button>
+    <button type="button" id="zoomReset" title="Reset" aria-label="Reset zoom">1:1</button>
+  </div>
+  <div class="zoom-view" id="zoomView" aria-label="Area zoom foto">
+    <img id="gambarFoto" alt="Foto">
+  </div>
+  <p class="petunjuk" style="margin:8px 0 0;font-size:0.8rem">Cubit atau gulir untuk zoom · seret untuk menggeser</p>
+  <div class="aksi-data" style="margin-top:10px">
+    <button type="button" class="mini" id="tutupFoto">Tutup</button>
+  </div>
 </dialog>
 
 <!-- Layar kamera -->
@@ -1625,7 +1958,7 @@
   let urlPratinjau = null;
   let sedangKirim = false;
 
-  const VERSI_SERVER = "2026.09.26.14";   // harus sama dengan VERSI_ di Code.gs
+  const VERSI_SERVER = "2026.09.28.3";   // harus sama dengan VERSI_ di Code.gs
   const PESAN_KONEKSI = "Tidak bisa terhubung ke Apps Script. Pastikan deployment diatur Who has access: Anyone dan alamatnya berakhiran /exec.";
 
   const kamera = { stream: null, pos: null, gpsError: null, watchId: null, alamat: [], alamatPos: null, alamatWaktu: 0, timer: null, heading: null, jejak: [], onOri: null };
@@ -1713,17 +2046,34 @@
     } catch (e) { return String(iso); }
   }
 
+  function perbaruiRingkasAkun(daftar) {
+    const list = daftar || [];
+    let menunggu = 0, disetujui = 0, ditolak = 0;
+    list.forEach(function (a) {
+      const s = String(a.status || "");
+      if (s === "Menunggu") menunggu++;
+      else if (s === "Disetujui") disetujui++;
+      else if (s === "Ditolak") ditolak++;
+    });
+    if ($("jmlAkunTotal")) $("jmlAkunTotal").textContent = String(list.length);
+    if ($("jmlAkunMenunggu")) $("jmlAkunMenunggu").textContent = String(menunggu);
+    if ($("jmlAkunDisetujui")) $("jmlAkunDisetujui").textContent = String(disetujui);
+    if ($("jmlAkunDitolak")) $("jmlAkunDitolak").textContent = String(ditolak);
+  }
+
   async function muatDaftarAkun() {
     if (!$("bagianAdmin") || $("bagianAdmin").hidden) return;
     const ul = $("daftarAkun");
     ul.innerHTML = "<li class=\"kosong-riwayat\">Memuat…</li>";
     setStatusAdmin("");
     try {
-      const h = await panggil({ aksi: "daftarAkun" });
+      const h = await panggil({ aksi: "daftarAkun", _label: "Memuat daftar akun…" });
       const daftar = h.daftar || [];
+      perbaruiRingkasAkun(daftar);
       ul.innerHTML = "";
       if (!daftar.length) {
         ul.innerHTML = "<li class=\"kosong-riwayat\">Belum ada akun terdaftar.</li>";
+        setStatusAdmin("Total 0 akun terdaftar.", "ok");
         return;
       }
       daftar.forEach(function (a) {
@@ -1765,6 +2115,8 @@
         li.appendChild(aksi);
         ul.appendChild(li);
       });
+    
+      setStatusAdmin("Total " + daftar.length + " akun terdaftar.", "ok");
     } catch (err) {
       ul.innerHTML = "";
       setStatusAdmin(err.message || String(err), "gagal");
@@ -2886,7 +3238,7 @@
       try {
         const up = await panggil({ aksi: "simpanPdf", nama: nama, periode: periode.teks, email: $("emailPdf").checked, data: keBase64Bytes(bytes) });
         if (typeof up.url === "string" && up.url.startsWith("https://")) tambah("Buka salinan di Drive", up.url, false);
-        buatTombolCetak(wadah, { url: urlPdf, id: up.id, nama: nama, status: status });
+        buatTombolCetak(wadah, { url: urlPdf, id: up.id, nama: nama, status: status, blob: blob });
         let email = "";
         if (up.emailKe) email = ` PDF juga dikirim ke email ${up.emailKe}.`;
         else if (up.emailGagal) email = ` Email PDF gagal terkirim (${up.emailGagal}).`;
@@ -3045,18 +3397,149 @@
     }
   }
 
-  async function lihatFoto(e) {
+
+  /* ---------- Zoom penampil foto / scan ---------- */
+  const zoomState = {
+    scale: 1,
+    min: 0.5,
+    max: 5,
+    x: 0,
+    y: 0,
+    dragging: false,
+    lastX: 0,
+    lastY: 0,
+    pinch: 0
+  };
+
+  function zoomApply() {
+    const img = $("gambarFoto");
+    const label = $("labelZoom");
+    if (!img) return;
+    img.style.transform = "translate(calc(-50% + " + zoomState.x + "px), calc(-50% + " + zoomState.y + "px)) scale(" + zoomState.scale + ")";
+    if (label) label.textContent = Math.round(zoomState.scale * 100) + "%";
+  }
+
+  function zoomSet(scale, cx, cy) {
+    const view = $("zoomView");
+    const prev = zoomState.scale;
+    zoomState.scale = Math.max(zoomState.min, Math.min(zoomState.max, scale));
+    if (view && cx != null && cy != null && prev > 0) {
+      const r = view.getBoundingClientRect();
+      const px = cx - r.left - r.width / 2;
+      const py = cy - r.top - r.height / 2;
+      const f = zoomState.scale / prev;
+      zoomState.x = px - (px - zoomState.x) * f;
+      zoomState.y = py - (py - zoomState.y) * f;
+    }
+    if (zoomState.scale <= 1.02) {
+      zoomState.scale = 1;
+      zoomState.x = 0;
+      zoomState.y = 0;
+    }
+    zoomApply();
+  }
+
+  function zoomReset() {
+    zoomState.scale = 1;
+    zoomState.x = 0;
+    zoomState.y = 0;
+    zoomApply();
+  }
+
+  function pasangZoomView() {
+    const view = $("zoomView");
+    if (!view || view._zoom) return;
+    view._zoom = true;
+
+    view.addEventListener("wheel", function (ev) {
+      ev.preventDefault();
+      const delta = ev.deltaY > 0 ? -0.12 : 0.12;
+      zoomSet(zoomState.scale + delta, ev.clientX, ev.clientY);
+    }, { passive: false });
+
+    view.addEventListener("pointerdown", function (ev) {
+      if (ev.pointerType === "mouse" && ev.button !== 0) return;
+      view.setPointerCapture(ev.pointerId);
+      zoomState.dragging = true;
+      zoomState.lastX = ev.clientX;
+      zoomState.lastY = ev.clientY;
+    });
+    view.addEventListener("pointermove", function (ev) {
+      if (!zoomState.dragging) return;
+      const dx = ev.clientX - zoomState.lastX;
+      const dy = ev.clientY - zoomState.lastY;
+      zoomState.lastX = ev.clientX;
+      zoomState.lastY = ev.clientY;
+      if (zoomState.scale > 1) {
+        zoomState.x += dx;
+        zoomState.y += dy;
+        zoomApply();
+      }
+    });
+    function endDrag() { zoomState.dragging = false; }
+    view.addEventListener("pointerup", endDrag);
+    view.addEventListener("pointercancel", endDrag);
+
+    // Pinch zoom
+    let lastDist = 0;
+    view.addEventListener("touchstart", function (ev) {
+      if (ev.touches.length === 2) {
+        const a = ev.touches[0], b = ev.touches[1];
+        lastDist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      }
+    }, { passive: true });
+    view.addEventListener("touchmove", function (ev) {
+      if (ev.touches.length === 2) {
+        ev.preventDefault();
+        const a = ev.touches[0], b = ev.touches[1];
+        const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        if (lastDist > 0) {
+          const midX = (a.clientX + b.clientX) / 2;
+          const midY = (a.clientY + b.clientY) / 2;
+          zoomSet(zoomState.scale * (dist / lastDist), midX, midY);
+        }
+        lastDist = dist;
+      }
+    }, { passive: false });
+    view.addEventListener("touchend", function () { lastDist = 0; });
+
+    if ($("zoomIn")) $("zoomIn").addEventListener("click", function () { zoomSet(zoomState.scale + 0.25); });
+    if ($("zoomOut")) $("zoomOut").addEventListener("click", function () { zoomSet(zoomState.scale - 0.25); });
+    if ($("zoomReset")) $("zoomReset").addEventListener("click", zoomReset);
+  }
+
+  function bukaZoomDialog(judul, src) {
+    pasangZoomView();
+    zoomReset();
     const dlg = $("dialogFoto");
-    const d = tanggalDariKunci(e.tanggal);
-    $("ketFoto").textContent = `${TGL_FMT.format(d)}: memuat foto...`;
-    $("gambarFoto").removeAttribute("src");
+    $("ketFoto").textContent = judul || "";
+    const img = $("gambarFoto");
+    img.onload = function () { zoomReset(); };
+    if (src) img.src = src;
+    else img.removeAttribute("src");
     dlg.showModal();
+  }
+
+
+  async function lihatFoto(e) {
+    const d = tanggalDariKunci(e.tanggal);
+    bukaZoomDialog(TGL_FMT.format(d) + ": memuat foto…", "");
     try {
-      const f = await panggil({ aksi: "foto", id: e.fotoId });
-      $("gambarFoto").src = "data:image/jpeg;base64," + f.data;
-      $("ketFoto").textContent = `${TGL_FMT.format(d)}, ${e.lokasi || ""}`;
+      const f = await panggil({ aksi: "foto", id: e.fotoId, _label: "Memuat foto…" });
+      bukaZoomDialog(TGL_FMT.format(d) + (e.lokasi ? ", " + e.lokasi : ""), "data:image/jpeg;base64," + f.data);
     } catch (err) {
-      $("ketFoto").textContent = "Foto tidak bisa dimuat: " + err.message;
+      $("ketFoto").textContent = "Foto tidak bisa dimuat: " + (err.message || err);
+    }
+  }
+
+  /** Cek hasil scan (halaman tumpukan) dengan zoom */
+  function cekHalamanScan(p, indeks) {
+    try {
+      const c = prosesHalaman(p.orig, p.rot, $("filterScan").value, 2000, p.kotak);
+      const src = c.toDataURL("image/jpeg", 0.92);
+      bukaZoomDialog("Scan halaman " + (indeks + 1) + (p.kotak ? " · terpotong" : ""), src);
+    } catch (err) {
+      setStatus("Gagal menampilkan: " + (err.message || err), "gagal", "statusScan");
     }
   }
 
@@ -3303,7 +3786,7 @@
   /* ---------- Scan dokumen ---------- */
 
   const scan = { halaman: [], stream: null, target: null, sibuk: false };
-  const SISI_SCAN = 2000;   // sisi terpanjang gambar mentah (px)
+  const SISI_SCAN = 2400;   // sisi terpanjang gambar mentah (px) — form lebih detail
 
   const jepit = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
@@ -3384,14 +3867,17 @@
         let v;
         if (mode === "hitamputih") v = rasio < 0.78 ? 0 : 255;
         else if (mode === "kontras") {
-          // Perjelas coretan tipis / pensil
           const t = jepit((rasio - 0.48) / 0.38);
           v = Math.pow(t, 0.7) * 255;
           if (v < 40) v = 0;
           if (v > 230) v = 255;
         } else {
-          const t = jepit((rasio - 0.55) / 0.42);
+          // Mode dokumen: rata bayangan + teks form lebih tajam (tabel/garis)
+          const t = jepit((rasio - 0.52) / 0.40);
           v = t * t * (3 - 2 * t) * 255;
+          // perkuat tinta gelap sedikit
+          if (v < 55) v = Math.max(0, v * 0.55);
+          if (v > 240) v = 255;
         }
         const p = (y * w + x) * 4;
         d[p] = d[p + 1] = d[p + 2] = v;
@@ -3453,9 +3939,12 @@
       };
       tombol("←", "", () => { if (i > 0) { [scan.halaman[i - 1], scan.halaman[i]] = [scan.halaman[i], scan.halaman[i - 1]]; gambarTumpukan(); } }, i === 0);
       tombol("→", "", () => { if (i < n - 1) { [scan.halaman[i + 1], scan.halaman[i]] = [scan.halaman[i], scan.halaman[i + 1]]; gambarTumpukan(); } }, i === n - 1);
+      tombol("🔍", "", () => cekHalamanScan(p, i));
       tombol("↻", "", () => { p.rot = (p.rot + 90) % 360; perbaruiThumb(p); gambarTumpukan(); });
       tombol("✂", "", () => bukaPotong(p));
       tombol("✕", "bahaya", () => { scan.halaman.splice(i, 1); gambarTumpukan(); });
+      img.style.cursor = "zoom-in";
+      img.addEventListener("click", function () { cekHalamanScan(p, i); });
       li.append(img, no, aksi);
       ul.append(li);
     });
@@ -3823,7 +4312,7 @@
       };
       if (typeof up.url === "string" && up.url.startsWith("https://")) tambah("Buka PDF di Drive", up.url, false);
       tambah("Unduh PDF", urlLokal, true);
-      buatTombolCetak($("hasilScan"), { url: urlLokal, id: up.id, nama: namaBerkas, status: status });
+      buatTombolCetak($("hasilScan"), { url: urlLokal, id: up.id, nama: namaBerkas, status: status, blob: blob });
 
       status(`Tersimpan: ${jumlah} halaman di Drive dan Sheet.`, "ok");
       scan.halaman = [];
@@ -3986,27 +4475,145 @@
     return true;
   }
 
-  // Mencari lembaran (kertas) terbesar di gambar. Mengembalikan 4 titik [kiri-atas, kanan-atas, kanan-bawah, kiri-bawah]
-  // dalam koordinat kanvas asli, atau null bila tidak yakin.
+  // Urutkan 4 sudut: TL, TR, BR, BL
+  function urutQuad(pts) {
+    const s = pts.slice().sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+    const atas = s.slice(0, 2).sort(function (a, b) { return a.x - b.x; });
+    const bawah = s.slice(2, 4).sort(function (a, b) { return a.x - b.x; });
+    return [atas[0], atas[1], bawah[1], bawah[0]];
+  }
+
+  // Skor seberapa mirip formulir/kertas A4 (rasio ~1.41, cembung, area wajar)
+  function skorBentukForm(q, total, w, h) {
+    if (!q || q.length !== 4) return 0;
+    if (!cembung(q)) return 0;
+    const luasQ = luasPoligon(q);
+    if (luasQ < total * 0.08 || luasQ > total * 0.96) return 0;
+    const sisi = [0, 1, 2, 3].map(function (i) {
+      return Math.hypot(q[i].x - q[(i + 1) % 4].x, q[i].y - q[(i + 1) % 4].y);
+    });
+    const sisiMin = Math.min.apply(null, sisi);
+    if (sisiMin < Math.max(w, h) * 0.08) return 0;
+    const W = Math.max(sisi[0], sisi[2]);
+    const H = Math.max(sisi[1], sisi[3]);
+    const rasio = Math.max(W, H) / Math.max(1, Math.min(W, H));
+    // Form A4 ≈ 1.414; form landscape/portrait sama
+    const skorA4 = 1 - Math.min(1, Math.abs(rasio - 1.414) / 0.55);
+    // Persegi panjang (sudut tidak terlalu miring liar): bandingkan sisi berhadapan
+    const simetri = 1 - Math.min(1, (Math.abs(sisi[0] - sisi[2]) + Math.abs(sisi[1] - sisi[3])) / (W + H));
+    return luasQ * (0.45 + 0.35 * skorA4 + 0.2 * simetri);
+  }
+
+  // Deteksi tepi Sobel → kontur → segi empat (lebih akurat untuk formulir)
+  function deteksiQuadTepi(gray, w, h) {
+    const gx = new Float32Array(w * h);
+    const gy = new Float32Array(w * h);
+    const mag = new Float32Array(w * h);
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = y * w + x;
+        const a = gray[i - w - 1], b = gray[i - w], c = gray[i - w + 1];
+        const d0 = gray[i - 1], e = gray[i + 1];
+        const f = gray[i + w - 1], g0 = gray[i + w], hh = gray[i + w + 1];
+        const sx = -a + c - 2 * d0 + 2 * e - f + hh;
+        const sy = -a - 2 * b - c + f + 2 * g0 + hh;
+        gx[i] = sx; gy[i] = sy;
+        mag[i] = Math.abs(sx) + Math.abs(sy);
+      }
+    }
+    // Ambang adaptif dari histogram magnitudo
+    let sum = 0, n = 0;
+    for (let i = 0; i < mag.length; i++) {
+      if (mag[i] > 30) { sum += mag[i]; n++; }
+    }
+    const mean = n ? sum / n : 80;
+    const T = Math.max(40, Math.min(160, mean * 0.85));
+    const edge = new Uint8Array(w * h);
+    for (let i = 0; i < mag.length; i++) edge[i] = mag[i] >= T ? 1 : 0;
+    // Tutup celah tepi sedikit (dilate 1px)
+    const dil = new Uint8Array(w * h);
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = y * w + x;
+        if (edge[i] || edge[i - 1] || edge[i + 1] || edge[i - w] || edge[i + w]) dil[i] = 1;
+      }
+    }
+    // Komponen tepi → ambil kontur luar kasar lewat bbox + sudut ekstrem
+    const dilihat = new Uint8Array(w * h);
+    const tumpuk = new Int32Array(w * h);
+    let terbaik = null;
+    const total = w * h;
+    for (let awal = 0; awal < total; awal++) {
+      if (!dil[awal] || dilihat[awal]) continue;
+      let sp = 0, luas = 0;
+      tumpuk[sp++] = awal; dilihat[awal] = 1;
+      let x0 = w, x1 = 0, y0 = h, y1 = 0;
+      let pts = [];
+      while (sp) {
+        const idx = tumpuk[--sp];
+        const y = (idx / w) | 0, x = idx - y * w;
+        luas++;
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+        // simpan sebagian titik tepi untuk sudut
+        if (edge[idx] && (luas & 3) === 0) pts.push({ x: x, y: y });
+        const nbs = [idx - 1, idx + 1, idx - w, idx + w];
+        for (let k = 0; k < 4; k++) {
+          const nidx = nbs[k];
+          if (nidx < 0 || nidx >= total) continue;
+          if (dil[nidx] && !dilihat[nidx]) { dilihat[nidx] = 1; tumpuk[sp++] = nidx; }
+        }
+      }
+      if (luas < total * 0.04) continue;
+      // sudut ekstrem dari bbox komponen
+      let tl = null, br = null, tr = null, bl = null;
+      let sMin = 1e9, sMaks = -1e9, dMin = 1e9, dMaks = -1e9;
+      // gunakan semua piksel tepi di bbox untuk sudut lebih akurat
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const idx = y * w + x;
+          if (!edge[idx]) continue;
+          const s = x + y, df = x - y;
+          if (s < sMin) { sMin = s; tl = { x: x, y: y }; }
+          if (s > sMaks) { sMaks = s; br = { x: x, y: y }; }
+          if (df > dMaks) { dMaks = df; tr = { x: x, y: y }; }
+          if (df < dMin) { dMin = df; bl = { x: x, y: y }; }
+        }
+      }
+      if (!tl || !tr || !br || !bl) continue;
+      const q = urutQuad([tl, tr, br, bl]);
+      const skor = skorBentukForm(q, total, w, h);
+      if (skor <= 0) continue;
+      if (!terbaik || skor > terbaik.skor) terbaik = { q: q, skor: skor };
+    }
+    return terbaik;
+  }
+
+  /**
+   * Cari lembar formulir/kertas. Kembalikan 4 titik TL,TR,BR,BL di koordinat kanvas asli.
+   * Prioritas: tepi (Sobel) + bentuk A4, lalu segmentasi warna kertas.
+   */
   function deteksiDokumen(kanvas) {
-    const maks = 320;
+    const maks = 480; // resolusi deteksi lebih tinggi = tepi form lebih akurat
     const sk = Math.min(1, maks / Math.max(kanvas.width, kanvas.height));
-    const w = Math.max(16, Math.round(kanvas.width * sk)), h = Math.max(16, Math.round(kanvas.height * sk));
+    const w = Math.max(24, Math.round(kanvas.width * sk)), h = Math.max(24, Math.round(kanvas.height * sk));
     const c = document.createElement("canvas");
     c.width = w; c.height = h;
     const g = c.getContext("2d", { willReadFrequently: true });
     g.drawImage(kanvas, 0, 0, w, h);
     const d = g.getImageData(0, 0, w, h).data;
     let gray = new Float32Array(w * h);
-    for (let i = 0, j = 0; i < gray.length; i++, j += 4) gray[i] = (d[j] * 299 + d[j + 1] * 587 + d[j + 2] * 114) / 1000;
-    gray = kaburSepar(gray, w, h, 2);
+    for (let i = 0, j = 0; i < gray.length; i++, j += 4) {
+      gray[i] = (d[j] * 299 + d[j + 1] * 587 + d[j + 2] * 114) / 1000;
+    }
+    gray = kaburSepar(gray, w, h, 1);
 
+    const total = w * h;
+    let terbaik = deteksiQuadTepi(gray, w, h);
+
+    // Cadangan: segmentasi kertas terang / kroma rendah (meja gelap)
     const hist = new Array(256).fill(0);
     for (let i = 0; i < gray.length; i++) hist[Math.max(0, Math.min(255, gray[i] | 0))]++;
-    const T = ambangOtsu(hist, w * h);
-    const total = w * h;
-
-    // Kertas biasanya berwarna netral (kroma rendah). Berguna bila sebagian kertas gelap oleh bayangan.
+    const T = ambangOtsu(hist, total);
     const kroma = new Float32Array(total);
     const histK = new Array(256).fill(0);
     for (let i = 0, j = 0; i < total; i++, j += 4) {
@@ -4015,23 +4622,28 @@
       histK[Math.min(255, kroma[i] | 0)]++;
     }
     const Tk = ambangOtsu(histK, total);
-
-    // Segmentasi kandidat; setiap kandidat dicari komponen terbesar yang bentuknya seperti segi empat
     const kandidat = [
-      (i) => gray[i] > T,
-      (i) => gray[i] <= T,
-      (i) => gray[i] > T * 0.8,
-      (i) => gray[i] > T * 0.65,
-      (i) => kroma[i] <= Tk && gray[i] > T * 0.45
+      function (i) { return gray[i] > T * 0.92; },
+      function (i) { return gray[i] > T * 0.75; },
+      function (i) { return kroma[i] <= Tk * 1.1 && gray[i] > T * 0.5; },
+      function (i) { return gray[i] > (T + 255) * 0.5; }
     ];
-    let terbaik = null;
-    for (const fungsi of kandidat) {
+    for (let ki = 0; ki < kandidat.length; ki++) {
+      const fungsi = kandidat[ki];
       const mask = new Uint8Array(total);
       for (let i = 0; i < total; i++) mask[i] = fungsi(i) ? 1 : 0;
+      // closing kecil: isi teks/logo di dalam form agar komponen menyatu
+      const tutup = new Uint8Array(total);
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x;
+          if (mask[i] || mask[i - 1] || mask[i + 1] || mask[i - w] || mask[i + w]) tutup[i] = 1;
+        }
+      }
       const dilihat = new Uint8Array(total);
       const tumpuk = new Int32Array(total);
       for (let awal = 0; awal < total; awal++) {
-        if (!mask[awal] || dilihat[awal]) continue;
+        if (!tutup[awal] || dilihat[awal]) continue;
         let sp = 0, luas = 0;
         tumpuk[sp++] = awal; dilihat[awal] = 1;
         let x0 = w, x1 = 0, y0 = h, y1 = 0;
@@ -4043,33 +4655,40 @@
           luas++;
           if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
           const s = x + y, df = x - y;
-          if (s < sMin) { sMin = s; tl = { x, y }; }
-          if (s > sMaks) { sMaks = s; br = { x, y }; }
-          if (df > dMaks) { dMaks = df; tr = { x, y }; }
-          if (df < dMin) { dMin = df; bl = { x, y }; }
-          if (x > 0 && mask[idx - 1] && !dilihat[idx - 1]) { dilihat[idx - 1] = 1; tumpuk[sp++] = idx - 1; }
-          if (x < w - 1 && mask[idx + 1] && !dilihat[idx + 1]) { dilihat[idx + 1] = 1; tumpuk[sp++] = idx + 1; }
-          if (y > 0 && mask[idx - w] && !dilihat[idx - w]) { dilihat[idx - w] = 1; tumpuk[sp++] = idx - w; }
-          if (y < h - 1 && mask[idx + w] && !dilihat[idx + w]) { dilihat[idx + w] = 1; tumpuk[sp++] = idx + w; }
+          if (s < sMin) { sMin = s; tl = { x: x, y: y }; }
+          if (s > sMaks) { sMaks = s; br = { x: x, y: y }; }
+          if (df > dMaks) { dMaks = df; tr = { x: x, y: y }; }
+          if (df < dMin) { dMin = df; bl = { x: x, y: y }; }
+          if (x > 0 && tutup[idx - 1] && !dilihat[idx - 1]) { dilihat[idx - 1] = 1; tumpuk[sp++] = idx - 1; }
+          if (x < w - 1 && tutup[idx + 1] && !dilihat[idx + 1]) { dilihat[idx + 1] = 1; tumpuk[sp++] = idx + 1; }
+          if (y > 0 && tutup[idx - w] && !dilihat[idx - w]) { dilihat[idx - w] = 1; tumpuk[sp++] = idx - w; }
+          if (y < h - 1 && tutup[idx + w] && !dilihat[idx + w]) { dilihat[idx + w] = 1; tumpuk[sp++] = idx + w; }
         }
-        if (luas < total * 0.12) continue;
-        // komponen yang menempel ke tiga sisi bingkai atau lebih kemungkinan latar, bukan kertas
-        const sisi = (x0 <= 1 ? 1 : 0) + (x1 >= w - 2 ? 1 : 0) + (y0 <= 1 ? 1 : 0) + (y1 >= h - 2 ? 1 : 0);
-        if (sisi >= 3) continue;
-        const q = [tl, tr, br, bl];
-        const luasQ = luasPoligon(q);
-        if (luasQ < total * 0.12 || luasQ > total * 0.97) continue;
-        if (!cembung(q)) continue;
-        const isi = luas / luasQ;
-        if (isi < 0.8) continue;                            // bentuknya jauh dari segi empat
-        const sisiMin = Math.min(...[0, 1, 2, 3].map((i) => Math.hypot(q[i].x - q[(i + 1) % 4].x, q[i].y - q[(i + 1) % 4].y)));
-        if (sisiMin < Math.max(w, h) * 0.1) continue;
-        const skor = luasQ * isi * isi;                     // utamakan yang besar dan benar-benar penuh
-        if (!terbaik || skor > terbaik.skor) terbaik = { q: q, luas: luasQ, skor: skor };
+        if (luas < total * 0.1) continue;
+        const sisiSentuh = (x0 <= 1 ? 1 : 0) + (x1 >= w - 2 ? 1 : 0) + (y0 <= 1 ? 1 : 0) + (y1 >= h - 2 ? 1 : 0);
+        if (sisiSentuh >= 3) continue;
+        const q = urutQuad([tl, tr, br, bl]);
+        const isi = luas / Math.max(1, luasPoligon(q));
+        if (isi < 0.72) continue;
+        let skor = skorBentukForm(q, total, w, h);
+        if (skor <= 0) continue;
+        skor *= (0.7 + 0.3 * Math.min(1, isi));
+        if (!terbaik || skor > terbaik.skor) terbaik = { q: q, skor: skor };
       }
     }
+
     if (!terbaik) return null;
-    return terbaik.q.map((p) => ({ x: (p.x + 0.5) / sk, y: (p.y + 0.5) / sk }));
+    // Sedikit ke dalam agar tidak menyertakan tepi meja/bayangan
+    const q = terbaik.q;
+    const cx = (q[0].x + q[1].x + q[2].x + q[3].x) / 4;
+    const cy = (q[0].y + q[1].y + q[2].y + q[3].y) / 4;
+    const inset = 0.012;
+    return q.map(function (pt) {
+      return {
+        x: (pt.x + (cx - pt.x) * inset + 0.5) / sk,
+        y: (pt.y + (cy - pt.y) * inset + 0.5) / sk
+      };
+    });
   }
 
   // Koefisien homografi yang memetakan titik dst -> src (masing-masing 4 titik)
@@ -4105,9 +4724,13 @@
     const [tl, tr, br, bl] = k;
     const jarak = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
     let W = Math.max(jarak(tl, tr), jarak(bl, br)), H = Math.max(jarak(tl, bl), jarak(tr, br));
-    const A4 = 1.4142;
+    const A4 = 1.41421356;
     const rasio = Math.max(W, H) / Math.max(1, Math.min(W, H));
-    if (Math.abs(rasio - A4) / A4 < 0.1) { if (H >= W) W = H / A4; else H = W / A4; }   // hampir A4: pakai rasio A4 tepat
+    // Form/kertas: paksa rasio A4 lebih agresif (toleransi 18%)
+    if (Math.abs(rasio - A4) / A4 < 0.18) {
+      if (H >= W) W = H / A4;
+      else H = W / A4;
+    }
     const sk = Math.min(1, sisiMaks / Math.max(W, H));
     W = Math.max(8, Math.round(W * sk)); H = Math.max(8, Math.round(H * sk));
 
@@ -4527,65 +5150,188 @@
     }
   }
 
-  /* ---------- Cetak dan kirim ke printer ---------- */
+  /* ---------- Cetak dan kirim ke printer (dioptimalkan) ---------- */
 
-  const LAYAR_SENTUH = navigator.maxTouchPoints > 0;
+  const LAYAR_SENTUH = navigator.maxTouchPoints > 0 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  let _iframeCetak = null;
 
+  /** Cetak PDF dari URL (blob: atau https:). Desktop: dialog print; HP: buka penampil + petunjuk. */
   function cetakLokal(url, status) {
-    // Di HP: buka PDF lalu cetak lewat menu Chrome. Di komputer: langsung membuka dialog cetak.
-    if (LAYAR_SENTUH) {
-      window.open(url, "_blank");
-      status("PDF dibuka di tab baru. Untuk mencetak: ketuk menu di Chrome, pilih Bagikan lalu Cetak (atau tombol cetak di penampil PDF).", "");
+    if (!url) {
+      if (status) status("Tidak ada PDF untuk dicetak.", "gagal");
       return;
     }
-    try {
-      const f = document.createElement("iframe");
-      f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
-      f.src = url;
-      f.onload = () => {
-        try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { window.open(url, "_blank"); }
-        setTimeout(() => f.remove(), 60000);
-      };
-      document.body.append(f);
-    } catch (e) {
-      window.open(url, "_blank");
+    if (typeof status === "function") status("Menyiapkan cetak…", "");
+
+    // Desktop: iframe tersembunyi → window.print()
+    if (!LAYAR_SENTUH) {
+      try {
+        if (_iframeCetak) { try { _iframeCetak.remove(); } catch (e) {} }
+        const f = document.createElement("iframe");
+        f.setAttribute("title", "Cetak PDF");
+        f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none";
+        f.src = url;
+        f.onload = function () {
+          try {
+            f.contentWindow.focus();
+            f.contentWindow.print();
+            if (status) status("Dialog cetak dibuka. Pilih printer lalu Cetak.", "ok");
+          } catch (e) {
+            window.open(url, "_blank", "noopener");
+            if (status) status("PDF dibuka di tab baru. Gunakan menu Cetak browser (Ctrl+P).", "");
+          }
+          setTimeout(function () { try { f.remove(); } catch (e2) {} }, 120000);
+        };
+        f.onerror = function () {
+          window.open(url, "_blank", "noopener");
+          if (status) status("PDF dibuka di tab baru untuk dicetak.", "");
+        };
+        document.body.appendChild(f);
+        _iframeCetak = f;
+        return;
+      } catch (e) { /* jatuh ke cara HP */ }
+    }
+
+    // HP / tablet: buka PDF; user cetak dari penampil sistem (lebih andal daripada iframe)
+    const w = window.open(url, "_blank", "noopener");
+    if (!w) {
+      if (status) status("Izinkan pop-up, lalu ketuk Cetak lagi. Atau pakai Unduh PDF lalu buka filenya.", "gagal");
+      return;
+    }
+    if (status) {
+      status(
+        "PDF dibuka. Untuk mencetak: ketuk ⋮ atau Bagikan → Cetak (atau ikon printer di penampil PDF).",
+        "ok"
+      );
     }
   }
 
-  async function kirimPrinterId(id, nama, status, data) {
-    status("Mengirim ke printer...", "");
+  /** Bagikan PDF lewat share sheet HP (WhatsApp, Drive, Cetak, dll). */
+  async function bagikanPdf(blobAtauFile, nama, status) {
     try {
-      const h = await panggil(id ? { aksi: "kirimPrinter", id } : { aksi: "kirimPrinter", nama: nama, data: data });
-      status(`Terkirim ke printer (${h.ke}). Dokumen akan dicetak sebentar lagi.`, "ok");
+      const berkas = blobAtauFile instanceof File
+        ? blobAtauFile
+        : new File([blobAtauFile], nama || "dokumen.pdf", { type: "application/pdf" });
+      if (navigator.canShare && navigator.canShare({ files: [berkas] })) {
+        await navigator.share({ files: [berkas], title: nama || "PDF", text: nama || "Dokumen PDF" });
+        if (status) status("Berhasil dibagikan.", "ok");
+        return true;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return false;
+    }
+    if (status) status("Perangkat ini tidak mendukung Bagikan file. Gunakan Unduh PDF.", "");
+    return false;
+  }
+
+  function emailPrinterAktif() {
+    return (ambil("emailPrinter") || "").trim();
+  }
+
+  async function kirimPrinterId(id, nama, status, dataB64) {
+    if (status) status("Mengirim ke printer…", "");
+    try {
+      const ep = emailPrinterAktif();
+      if (!ep) {
+        // buka pengaturan agar user isi
+        try { $("pengaturan").open = true; } catch (e) {}
+        if ($("emailPrinter")) $("emailPrinter").focus();
+        throw new Error("Isi email printer di Profil → Koneksi (atau Pengaturan), lalu Simpan.");
+      }
+      const muatan = { aksi: "kirimPrinter", _label: "Mengirim ke printer…", printerEmail: ep };
+      if (id) muatan.id = id;
+      else if (dataB64) { muatan.nama = nama; muatan.data = dataB64; }
+      else throw new Error("PDF belum siap.");
+      const h = await panggil(muatan);
+      if (status) status("Terkirim ke printer (" + (h.ke || ep) + "). Tunggu beberapa saat.", "ok");
     } catch (err) {
-      status("Gagal kirim ke printer: " + err.message, "gagal");
+      if (status) status("Gagal kirim ke printer: " + (err.message || err), "gagal");
     }
   }
 
   async function cetakDokumenScan(e) {
-    const status = (t, j) => setStatus(t, j, "statusDaftarScan");
-    status("Menyiapkan dokumen...", "");
+    const status = function (tx, j) { setStatus(tx, j, "statusDaftarScan"); };
+    status("Menyiapkan dokumen…", "");
     try {
-      const bytes = dariBase64((await panggil({ aksi: "ambilScan", id: e.id })).data);
-      cetakLokal(URL.createObjectURL(new Blob([bytes], { type: "application/pdf" })), status);
+      tampilkanLoading("Menyiapkan cetak…");
+      const bytes = dariBase64((await panggil({ aksi: "ambilScan", id: e.id, _diam: true })).data);
+      const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+      cetakLokal(url, status);
     } catch (err) {
-      status("Gagal: " + err.message, "gagal");
+      status("Gagal: " + (err.message || err), "gagal");
+    } finally {
+      try { sembunyikanLoading(); } catch (e2) {}
     }
   }
 
-  // Tombol Cetak dan Kirim ke printer di bawah hasil PDF. o: { url, id, nama, status }
+  /**
+   * Tombol aksi cetak di bawah hasil PDF.
+   * o: { url, id, nama, status, blob? }
+   */
   function buatTombolCetak(wadah, o) {
-    const tombol = (teks, fn) => {
+    if (!wadah || !o) return;
+    // Hindari dobel baris tombol
+    const lama = wadah.querySelector(".aksi-cetak");
+    if (lama) lama.remove();
+
+    const bar = document.createElement("div");
+    bar.className = "aksi-cetak";
+    bar.setAttribute("role", "group");
+    bar.setAttribute("aria-label", "Aksi cetak PDF");
+
+    function tombol(teks, kelas, fn) {
       const b = document.createElement("button");
-      b.type = "button"; b.className = "mini"; b.textContent = teks;
+      b.type = "button";
+      b.className = kelas || "";
+      b.textContent = teks;
       b.addEventListener("click", fn);
-      wadah.append(b);
-    };
-    tombol("Cetak", () => cetakLokal(o.url, o.status));
-    tombol("Kirim ke printer", () => {
-      if (o.id) kirimPrinterId(o.id, o.nama, o.status);
-      else o.status("PDF belum tersimpan di Drive, jadi belum bisa dikirim ke printer.", "gagal");
+      bar.appendChild(b);
+      return b;
+    }
+
+    tombol("🖨️ Cetak", "utama", function () {
+      cetakLokal(o.url, o.status);
     });
+
+    if (o.blob || o.url) {
+      tombol("📤 Bagikan", "", async function () {
+        try {
+          let blob = o.blob;
+          if (!blob && o.url && o.url.indexOf("blob:") === 0) {
+            const res = await fetch(o.url);
+            blob = await res.blob();
+          }
+          if (!blob) {
+            o.status("Gunakan Unduh PDF, lalu bagikan dari folder Unduhan.", "");
+            return;
+          }
+          await bagikanPdf(blob, o.nama || "dokumen.pdf", o.status);
+        } catch (err) {
+          o.status("Bagikan gagal: " + (err.message || err), "gagal");
+        }
+      });
+    }
+
+    tombol("🖨️ Ke printer", "", function () {
+      if (o.id) {
+        kirimPrinterId(o.id, o.nama, o.status);
+        return;
+      }
+      // PDF lokal belum di Drive: kirim base64 jika ada
+      if (o.blob) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const b64 = String(reader.result || "").split(",")[1];
+          if (!b64) { o.status("Gagal membaca PDF untuk printer.", "gagal"); return; }
+          kirimPrinterId(null, o.nama, o.status, b64);
+        };
+        reader.readAsDataURL(o.blob);
+        return;
+      }
+      o.status("Simpan ke Drive dulu, atau unduh PDF lalu cetak dari file.", "gagal");
+    });
+
+    wadah.appendChild(bar);
   }
 
   /* ---------- Inisialisasi ---------- */
@@ -4594,6 +5340,14 @@
   $("waktu").addEventListener("input", perbaruiHari);
   $("pakaiSekarang").addEventListener("click", () => { $("waktu").value = nilaiInput(new Date()); perbaruiHari(); });
   $("areaFoto").addEventListener("click", bukaKamera);
+  if ($("pratinjau")) {
+    $("pratinjau").style.cursor = "zoom-in";
+    $("pratinjau").addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (!$("pratinjau").getAttribute("src")) return;
+      bukaZoomDialog("Pratinjau foto", $("pratinjau").src);
+    });
+  }
   $("rana").addEventListener("click", ambilFoto);
   $("batalKamera").addEventListener("click", tutupKamera);
   $("inputGaleri").addEventListener("change", (e) => pilihDariGaleri(e.target.files[0]));
@@ -4660,11 +5414,14 @@
     simpan("urlScript", $("urlScript").value.trim());
     const nomor = parseInt($("indeks").value, 10);
     if (!isNaN(nomor) && nomor >= 1) simpan("indeksFoto", String(nomor));
+    const ep = ($("emailPrinter") && $("emailPrinter").value || "").trim();
+    simpan("emailPrinter", ep);
     $("pengaturan").open = false;
-    setStatus("Pengaturan tersimpan.", "ok");
+    setStatus("Pengaturan tersimpan." + (ep ? " Email printer: " + ep : ""), "ok");
   });
   $("urlScript").value = ambil("urlScript") || CONFIG.SCRIPT_URL;
   $("indeks").value = String(ambilIndeks());
+  if ($("emailPrinter")) $("emailPrinter").value = ambil("emailPrinter") || "";
   perbaruiHari();
   gambarRiwayat();
   perbaruiKeterangan();
@@ -4877,18 +5634,31 @@ async function buatPdfLembur(PDFLib, d, aset) {
         });
       },
       logo(x1, y1, x2, y2) {
-        // Layout identik form S3: posisi & ukuran sama; hanya gambar logo mengikuti OC
+        // Susunan resmi: LOGO OC di KIRI · LOGO BIZNET di KANAN
+        // (x1/y1 & x2/y2 dari pemanggil = acuan vertikal header; posisi X dikunci)
         const kiri = ocKode === "DGM" ? (logoDgmL || logo3s)
           : ocKode === "MK" ? (logoMkL || logo3s)
           : logo3s;
-        const kanan = ocKode === "DGM" ? (logoDgmR || logoBiznet)
-          : ocKode === "MK" ? (logoMkR || logoBiznet)
-          : logoBiznet;
-        // Ukuran sama seperti form S3 (tidak mengubah layout tabel/teks)
-        const kw = 35.5, kh = 30.2;
-        const rw = 63.1, rh = 18.9;
-        if (kiri) p.drawImage(kiri, { x: x1, y: Y(y1 + kh), width: kw, height: kh });
-        if (kanan) p.drawImage(kanan, { x: x2, y: Y(y2 + rh), width: rw, height: rh });
+        const kanan = logoBiznet; // selalu Biznet di kanan
+        // Kiri — logo OC (sejajar area identitas)
+        const lx = 51.3, kw = 48, kh = 28;
+        // Kanan — logo Biznet (pojok kanan header)
+        const rx = 480.0, rw = 72, rh = 22;
+        const yKiri = (y1 != null ? y1 : 48);
+        const yKanan = (y2 != null ? y2 : 50);
+        if (kiri) {
+          // jaga proporsi logo sumber
+          const ar = (kiri.width && kiri.height) ? (kiri.width / kiri.height) : (kw / kh);
+          let dw = kw, dh = kh;
+          if (ar > kw / kh) { dh = kw / ar; } else { dw = kh * ar; }
+          p.drawImage(kiri, { x: lx, y: Y(yKiri + dh), width: dw, height: dh });
+        }
+        if (kanan) {
+          const ar = (kanan.width && kanan.height) ? (kanan.width / kanan.height) : (rw / rh);
+          let dw = rw, dh = rh;
+          if (ar > rw / rh) { dh = rw / ar; } else { dw = rh * ar; }
+          p.drawImage(kanan, { x: rx + (rw - dw), y: Y(yKanan + dh), width: dw, height: dh });
+        }
       }
     };
     return api;
@@ -5332,14 +6102,19 @@ async function buatPdfLembur(PDFLib, d, aset) {
     tutEl.className = "tut-latar";
     tutEl.setAttribute("role", "dialog");
     tutEl.setAttribute("aria-modal", "true");
+    const akhir = tutIdx >= LANGKAH_TUTORIAL.length - 1;
+    const awal = tutIdx <= 0;
     tutEl.innerHTML =
       '<div class="tut-kartu">' +
         '<div class="tut-gambar"><div class="tut-ilustrasi"><span class="besar">' + langkah.ikon + '</span><span>Langkah ' + (tutIdx + 1) + ' / ' + LANGKAH_TUTORIAL.length + '</span></div></div>' +
         '<div class="tut-badan"><h3>' + langkah.judul + '</h3><p>' + langkah.teks + '</p>' +
         '<div class="tut-langkah" id="tutDots"></div></div>' +
         '<div class="tut-aksi">' +
-          '<button type="button" class="mini" id="tutLewati">Lewati</button>' +
-          '<button type="button" class="simpan" id="tutLanjut">' + (tutIdx >= LANGKAH_TUTORIAL.length - 1 ? "Selesai" : "Lanjut") + '</button>' +
+          '<div class="tut-aksi-nav">' +
+            '<button type="button" id="tutKembali"' + (awal ? ' disabled' : '') + '>← Kembali</button>' +
+            '<button type="button" id="tutLanjut">' + (akhir ? 'Selesai' : 'Berikutnya →') + '</button>' +
+          '</div>' +
+          '<button type="button" class="tut-lewat" id="tutLewati">Lewati tutorial</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(tutEl);
@@ -5354,6 +6129,11 @@ async function buatPdfLembur(PDFLib, d, aset) {
     tutEl.querySelector("#tutLewati").onclick = function () {
       tandaiTutorialSelesai();
       hapusTutorialUI();
+    };
+    tutEl.querySelector("#tutKembali").onclick = function () {
+      if (tutIdx <= 0) return;
+      tutIdx--;
+      renderTutorial();
     };
     tutEl.querySelector("#tutLanjut").onclick = function () {
       if (tutIdx >= LANGKAH_TUTORIAL.length - 1) {
