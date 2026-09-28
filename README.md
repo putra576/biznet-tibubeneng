@@ -1381,6 +1381,68 @@
     }
   }
 
+
+  /* Balon pengguna aktif — pojok kanan bawah, fixed */
+  .balon-aktif {
+    position: fixed;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    pointer-events: auto;
+    font-family: var(--font);
+  }
+  .balon-aktif .isi-aktif {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.94);
+    border: 1px solid var(--line);
+    box-shadow: 0 8px 28px -8px rgb(15 37 46 / 0.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s;
+    max-width: min(92vw, 280px);
+  }
+  .balon-aktif .isi-aktif:active { transform: scale(0.97); }
+  .balon-aktif .titik-aktif {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 0 rgb(15 138 95 / 0.5);
+    animation: denyutAktif 2s ease-out infinite;
+    flex: none;
+  }
+  .balon-aktif.ramai .titik-aktif { background: var(--accent-2); }
+  .balon-aktif.penuh .titik-aktif { background: var(--danger); animation: none; }
+  @keyframes denyutAktif {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(15 138 95 / 0.45); }
+    50% { box-shadow: 0 0 0 7px rgb(15 138 95 / 0); }
+  }
+  .balon-aktif .teks-aktif {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .balon-aktif .teks-aktif small {
+    display: block;
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .balon-aktif.sembunyi .isi-aktif { opacity: 0.55; }
+  @media (prefers-color-scheme: dark) {
+    .balon-aktif .isi-aktif {
+      background: rgb(19 32 40 / 0.94);
+    }
+  }
+
 </style>
 
 <link rel="manifest" id="pwaManifest">
@@ -1958,7 +2020,7 @@
   let urlPratinjau = null;
   let sedangKirim = false;
 
-  const VERSI_SERVER = "2026.09.28.3";   // harus sama dengan VERSI_ di Code.gs
+  const VERSI_SERVER = "2026.09.28.7";   // harus sama dengan VERSI_ di Code.gs
   const PESAN_KONEKSI = "Tidak bisa terhubung ke Apps Script. Pastikan deployment diatur Who has access: Anyone dan alamatnya berakhiran /exec.";
 
   const kamera = { stream: null, pos: null, gpsError: null, watchId: null, alamat: [], alamatPos: null, alamatWaktu: 0, timer: null, heading: null, jejak: [], onOri: null };
@@ -2228,7 +2290,7 @@
     if (!pengguna() || !tokenAktif()) { tampilkanFormLogin(); return; }
     try {
       // Timeout agar tidak menggantung di layar putih jika server lambat
-      const tugas = panggil({ aksi: "terakhir", jumlah: 1 });
+      const tugas = panggil({ aksi: "terakhir", jumlah: 1, _diam: true });
       const batas = new Promise(function (_, tolak) {
         setTimeout(function () { tolak(new Error("Timeout sesi")); }, 8000);
       });
@@ -3034,37 +3096,66 @@
 
 
   let _loadingN = 0;
-  function tampilkanLoading(teks) {
+  let _loadingTimer = null;
+  // Aksi ringan: jangan tampilkan balon kecuali benar-benar lama
+  const AKSI_RINGAN = {
+    terakhir: 1, login: 1, daftar: 1, keluar: 1, kapasitas: 1,
+    daftarScan: 1, dataForm: 1, rekap: 1, daftarAkun: 1
+  };
+
+  function tampilkanLoading(teks, tundaMs) {
     _loadingN++;
     const el = $("balonLoading");
     const tx = $("teksBalonLoading");
     if (tx) tx.textContent = teks || "Memuat…";
-    if (el) {
+    const delay = tundaMs != null ? tundaMs : 350;
+    if (!el) return;
+    // Hanya muncul jika request > ~350ms — hindari kedip loading di jaringan cepat
+    if (_loadingTimer) clearTimeout(_loadingTimer);
+    _loadingTimer = setTimeout(function () {
+      if (_loadingN <= 0) return;
       el.hidden = false;
       requestAnimationFrame(function () { el.classList.add("tampil"); });
-    }
+    }, delay);
   }
   function sembunyikanLoading() {
     _loadingN = Math.max(0, _loadingN - 1);
     if (_loadingN > 0) return;
+    if (_loadingTimer) { clearTimeout(_loadingTimer); _loadingTimer = null; }
     const el = $("balonLoading");
     if (!el) return;
     el.classList.remove("tampil");
     setTimeout(function () {
       if (_loadingN === 0) el.hidden = true;
-    }, 200);
+    }, 180);
   }
 
   async function panggil(muatan) {
     const diam = muatan && muatan._diam;
-    const label = (muatan && muatan._label) || "Memuat…";
-    if (!diam) tampilkanLoading(label);
+    const aksi = (muatan && muatan.aksi) || "";
+    const label = (muatan && muatan._label) || (
+      aksi === "simpanPdf" || aksi === "simpanScan" || aksi === "perbaruiScan" ? "Menyimpan…" :
+      aksi === "foto" || aksi === "ambilScan" ? "Mengunduh…" :
+      aksi === "kirimPrinter" ? "Mengirim ke printer…" :
+      "Memuat…"
+    );
+    // Ringan: tunda lebih lama; berat: langsung tampil
+    const tunda = diam ? 99999 : (AKSI_RINGAN[aksi] ? 700 : 280);
+    if (!diam) tampilkanLoading(label, tunda);
     try {
-      const res = await fetch(urlScript(), {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(Object.assign({ pengguna: pengguna(), token: tokenAktif() }, muatan))
-      });
+      const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timer = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 90000) : null;
+      let res;
+      try {
+        res = await fetch(urlScript(), {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(Object.assign({ pengguna: pengguna(), token: tokenAktif() }, muatan)),
+          signal: ctrl ? ctrl.signal : undefined
+        });
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
       const h = await res.json();
       if (!h.ok) {
         if (muatan.aksi && h.error === "Foto kosong.") {
@@ -3072,7 +3163,13 @@
         }
         throw new Error(h.error || "Server menolak permintaan.");
       }
+      try { serapKehadiranDariRespon(h); } catch (e) {}
       return h;
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        throw new Error("Server terlalu lama merespons (timeout). Coba lagi — sering terjadi saat Apps Script baru bangun (cold start).");
+      }
+      throw err;
     } finally {
       if (!diam) sembunyikanLoading();
     }
@@ -5398,6 +5495,7 @@
   $("muatTerakhir").addEventListener("click", muatTerakhir);
   ["edJenis", "edTiket", "edCustomer"].forEach((id) => $(id).addEventListener("input", perbaruiPratinjauEdit));
   $("muatKapasitas").addEventListener("click", () => muatKapasitas(true));
+  if ($("isiBalonAktif")) $("isiBalonAktif").addEventListener("click", function () { muatPenggunaAktif(); });
   $("muatAkun").addEventListener("click", muatDaftarAkun);
   $("batalResetSandi").addEventListener("click", () => $("dialogResetSandi").close());
   $("yakinResetSandi").addEventListener("click", jalankanResetSandi);
@@ -5444,11 +5542,107 @@
   $("simpanProfil").addEventListener("click", simpanProfilBaru);
 
   // Data yang perlu akun aktif baru dimuat setelah login berhasil (lihat mulaiApp, dipanggil dari tampilkanApp()).
+
+  /* ---------- Kehadiran "real-time" (polling adaptif; Apps Script tidak support WebSocket) ---------- */
+  let _timerAktif = null;
+  let _aktifBusy = false;
+  let _aktifTerakhir = 0;
+
+  function tampilkanBalonAktif(h) {
+    const balon = $("balonAktif");
+    const teks = $("teksBalonAktif");
+    if (!balon || !teks) return;
+    if ($("app") && !$("app").hidden) balon.hidden = false;
+    else { balon.hidden = true; return; }
+
+    // Terima format statusAktif ATAU piggyback dari response lain
+    const n = (h && typeof h.aktif === "number") ? h.aktif
+      : (h && typeof h.penggunaAktif === "number") ? h.penggunaAktif : 0;
+    const batas = (h && (h.batasRamai != null)) ? h.batasRamai : 25;
+    const ramai = !!(h && (h.ramai || h.serverRamai)) || n >= batas;
+    const penuh = !!(h && (h.penuh || h.serverPenuh)) || n >= batas + 8;
+
+    balon.classList.toggle("ramai", ramai && !penuh);
+    balon.classList.toggle("penuh", penuh);
+
+    let status = "server longgar";
+    if (penuh) status = "server penuh — tunda simpan dulu";
+    else if (ramai) status = "server ramai — sabar jika lambat";
+
+    teks.innerHTML = n + " aktif sekarang<small>" + status + "</small>";
+  }
+
+  /** Update balon dari response API apa pun (mengurangi request khusus) */
+  function serapKehadiranDariRespon(h) {
+    if (!h || (typeof h.penggunaAktif !== "number" && typeof h.aktif !== "number")) return;
+    tampilkanBalonAktif(h);
+  }
+
+  async function muatPenggunaAktif(paksa) {
+    if (!pengguna() || !tokenAktif()) return;
+    if ($("app") && $("app").hidden) return;
+    if (document.hidden && !paksa) return; // tab tidak terlihat: hemat
+    if (_aktifBusy) return;
+    const sekarang = Date.now();
+    if (!paksa && sekarang - _aktifTerakhir < 8000) return; // debounce
+    _aktifBusy = true;
+    try {
+      const h = await panggil({ aksi: "statusAktif", _diam: true });
+      _aktifTerakhir = Date.now();
+      tampilkanBalonAktif(h);
+    } catch (e) {
+      const teks = $("teksBalonAktif");
+      if (teks) teks.innerHTML = "—<small>tidak terhubung</small>";
+    } finally {
+      _aktifBusy = false;
+    }
+  }
+
+  function jedaPantauAktif() {
+    // Tab terlihat: 18 dtk (lebih "live"). Tab tersembunyi: jeda.
+    if (document.hidden) return 0;
+    if (!navigator.onLine) return 60000;
+    return 18000;
+  }
+
+  function jadwalUlangPantauAktif() {
+    if (_timerAktif) { clearTimeout(_timerAktif); _timerAktif = null; }
+    const ms = jedaPantauAktif();
+    if (!ms) return;
+    _timerAktif = setTimeout(async function () {
+      await muatPenggunaAktif(false);
+      jadwalUlangPantauAktif();
+    }, ms);
+  }
+
+  function mulaiPantauAktif() {
+    muatPenggunaAktif(true);
+    jadwalUlangPantauAktif();
+    if (!window._pantauAktifTerpasang) {
+      window._pantauAktifTerpasang = true;
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+          muatPenggunaAktif(true);
+          jadwalUlangPantauAktif();
+        } else if (_timerAktif) {
+          clearTimeout(_timerAktif);
+          _timerAktif = null;
+        }
+      });
+      window.addEventListener("online", function () {
+        muatPenggunaAktif(true);
+        jadwalUlangPantauAktif();
+      });
+    }
+  }
+
+
   function mulaiApp() {
     perbaruiJam();
     setInterval(perbaruiJam, 30000);
     // Data & scan & kapasitas diload lazy saat panel dibuka (lebih ringan di HP)
     muatTerakhir();
+    try { mulaiPantauAktif(); } catch (e) {}
   }
 
 
@@ -6331,5 +6525,13 @@ async function buatPdfLembur(PDFLib, d, aset) {
   };
 </script>
 <div id="badgeVersi" style="position:fixed;bottom:8px;right:10px;font-size:11px;opacity:.55;z-index:5;pointer-events:none">v</div>
+
+<div class="balon-aktif" id="balonAktif" hidden title="Ketuk untuk perbarui">
+  <div class="isi-aktif" id="isiBalonAktif" role="status" aria-live="polite">
+    <span class="titik-aktif" aria-hidden="true"></span>
+    <span class="teks-aktif" id="teksBalonAktif">Menghitung…<small>pengguna aktif</small></span>
+  </div>
+</div>
+
 </body>
 </html>
